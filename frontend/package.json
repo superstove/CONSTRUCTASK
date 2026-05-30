@@ -1,0 +1,20 @@
+{
+  "name": "constructask-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "4.3.4",
+    "lucide-react": "latest",
+    "motion": "^12.39.0",
+    "ogl": "^1.0.11",
+    "react": "latest",
+    "react-dom": "latest",
+    "vite": "5.4.11"
+  }
+}

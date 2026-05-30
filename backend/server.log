@@ -1,0 +1,16 @@
+INFO:     Started server process [21964]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:64791 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61650 - "OPTIONS /api/approvals/?project_id=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53509 - "OPTIONS /api/approvals/?project_id=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53509 - "GET /api/approvals/?project_id=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61650 - "GET /api/approvals/?project_id=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61650 - "OPTIONS /api/projects/1/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53509 - "OPTIONS /api/projects/1/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61650 - "GET /api/projects/1/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53509 - "GET /api/projects/1/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55316 - "GET /api/projects/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53934 - "GET /api/projects/2/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49437 - "GET /api/projects/2/dashboard HTTP/1.1" 200 OK
