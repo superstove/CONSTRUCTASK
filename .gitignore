@@ -6,3 +6,6 @@ __pycache__/
 node_modules/
 dist/
 .vite/
+# DPP issuer private signing key — never commit
+dpp_issuer_key.json
+*.log

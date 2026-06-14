@@ -1,8 +1,10 @@
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 
+from auth import get_current_user, require_role
 from database import get_db
 from intelligence import (
     approval_overdue_days,
@@ -13,7 +15,7 @@ from intelligence import (
     delivery_status,
     plural,
 )
-from models import Approval, Certificate, Delivery, Material, Project
+from models import Approval, AuditTrail, Certificate, Delivery, Material, Project
 from schemas import (
     ActionQueueOut,
     DashboardOut,
@@ -29,7 +31,7 @@ from schemas import (
 )
 
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 def _plural(count: int, singular: str, plural_text: str | None = None) -> str:
@@ -114,7 +116,7 @@ def _activity_items(
                     id=f"approval-{approval.id}",
                     date=approval.requested_date,
                     title=f"{approval.approval_type} awaiting sign-off",
-                    description=f"{approval.material.name} is blocked until {approval.approver} closes this approval.",
+                    description=f"{approval.material.name} is blocked until {approval.user.name if getattr(approval, 'user', None) else str(approval.approver_id)} closes this approval.",
                     category="Approval",
                     status="Current",
                     tone="warning",
@@ -266,6 +268,7 @@ def _build_action_queue(
     for approval in approvals:
         overdue = approval_overdue_days(approval, today)
         if approval.status == "pending" and overdue > 0:
+            approver_name = approval.user.name if getattr(approval, "user", None) else str(approval.approver_id)
             raw_actions.append(
                 {
                     "id": f"approval-{approval.id}",
@@ -274,8 +277,8 @@ def _build_action_queue(
                     "category": "Approval",
                     "material_name": approval.material.name,
                     "issue": f"{approval.approval_type} is {plural(overdue, 'day')} overdue.",
-                    "action": f"Escalate to {approval.approver} for same-day decision.",
-                    "owner": approval.approver,
+                    "action": f"Escalate to {approver_name} for same-day decision.",
+                    "owner": approver_name,
                 }
             )
 
@@ -351,7 +354,7 @@ def get_project(project_id: int, db: Session = Depends(get_db)):
     return _project_out(project, db)
 
 
-@router.post("/", response_model=ProjectOut)
+@router.post("/", response_model=ProjectOut, dependencies=[Depends(require_role("Admin", "Project Manager"))])
 def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
     new_project = Project(
         name=project.name,
@@ -398,6 +401,7 @@ def get_dashboard(project_id: int, db: Session = Depends(get_db)):
     expiring_cert_list = [cert for cert in certificates if certificate_status(cert, today) == "expiring"]
     delayed_delivery_list = [delivery for delivery in deliveries if delivery_delay_days(delivery, today) > 0]
     delayed_deliveries = len(delayed_delivery_list)
+    ontime_deliveries = len([delivery for delivery in deliveries if delivery_status(delivery, today) in {"on_time", "delivered"}])
     expiring_certs = len(expired_certs) + len(expiring_cert_list)
     computed_risk = computed_project_risk(materials, approvals, certificates, deliveries, today)
     pending_materials = [material for material in materials if material.status == "pending"]
@@ -485,7 +489,14 @@ def get_dashboard(project_id: int, db: Session = Depends(get_db)):
     if failed_materials:
         material = failed_materials[0]
         executive_brief.append(f"Verification risk: {material.name} failed batch review and should remain blocked.")
-    executive_brief.append("Recommended action: resolve compliance first, then delivery recovery, then approval closure.")
+    # Tailor the closing line to the project's actual state — don't recommend
+    # "resolve compliance" on a project that has no issues (or no materials yet).
+    if expired_certs or delayed_delivery_list or overdue_approvals or failed_materials:
+        executive_brief.append("Recommended action: resolve compliance first, then delivery recovery, then approval closure.")
+    elif total_materials == 0:
+        executive_brief.append("No materials recorded yet. Add materials and certificates to begin compliance tracking.")
+    else:
+        executive_brief.append("No active blockers — certificates, deliveries, and approvals are all in good standing.")
     supplier_names = sorted({delivery.supplier for delivery in deliveries} | {material.supplier for material in materials})
     supplier_risks = []
     for supplier in supplier_names:
@@ -493,6 +504,7 @@ def get_dashboard(project_id: int, db: Session = Depends(get_db)):
         delayed_count = len([delivery for delivery in supplier_deliveries if delivery_delay_days(delivery, today) > 0])
         total_delay_days = sum(delivery_delay_days(delivery, today) for delivery in supplier_deliveries)
         pending_count = len([delivery for delivery in supplier_deliveries if delivery.status == "pending"])
+        ontime_count = len([delivery for delivery in supplier_deliveries if delivery_status(delivery, today) in {"on_time", "delivered"}])
 
         if not supplier_deliveries:
             risk = "Medium"
@@ -514,6 +526,8 @@ def get_dashboard(project_id: int, db: Session = Depends(get_db)):
                 reason=reason,
                 delayed_deliveries=delayed_count,
                 total_delay_days=total_delay_days,
+                total_deliveries=len(supplier_deliveries),
+                ontime_deliveries=ontime_count,
             )
         )
 
@@ -522,6 +536,8 @@ def get_dashboard(project_id: int, db: Session = Depends(get_db)):
         total_materials=total_materials,
         pending_approvals=pending_approvals,
         expiring_certs=expiring_certs,
+        total_deliveries=len(deliveries),
+        ontime_deliveries=ontime_deliveries,
         delayed_deliveries=delayed_deliveries,
         alerts=alerts,
         reasoning_sources=reasoning_sources,
@@ -553,7 +569,27 @@ def get_project_readiness(project_id: int, db: Session = Depends(get_db)):
 
     blockers = len(expired) + len(failed)
     warnings = len(expiring) + len(pending) + len(overdue) + len(delayed) + scan_warnings
-    score = max(0, 100 - blockers * 45 - (warnings - scan_warnings) * 5 - scan_warnings * 5)
+    # Use the SAME weighted readiness engine the AI assistant uses, so the score is
+    # consistent everywhere (Command Center, assistant, forecast). Previously this
+    # endpoint used a harsher blockers×45 formula that disagreed with the AI.
+    from engines.readiness_engine import compute_readiness_score
+    score = compute_readiness_score({
+        "materials": materials,
+        "certificates": certificates,
+        "approvals": approvals,
+        "deliveries": deliveries,
+    }, today).score
+
+    # Empty project: nothing to assess yet — do NOT report a misleading "100% Ready".
+    if not materials:
+        return ProjectReadinessOut(
+            status="No Materials Yet",
+            score=0,
+            blockers=0,
+            warnings=0,
+            reasons=["No materials have been added to this project yet. Add materials to begin readiness tracking."],
+            next_action="Add the project's first material to start tracking readiness.",
+        )
 
     if blockers > 0:
         status = "Blocked"
@@ -679,7 +715,7 @@ def get_project_evidence(project_id: int, db: Session = Depends(get_db)):
             material_name=approval.material.name,
             status=approval.status.title(),
             detail=f"{_plural(approval_overdue_days(approval, today), 'day')} overdue",
-            action=f"Escalate to {approval.approver}",
+            action=f"Escalate to {approval.user.name if getattr(approval, 'user', None) else str(approval.approver_id)}",
             tone="warning",
         )
         for approval in approvals
@@ -738,3 +774,34 @@ def get_project_activity(project_id: int, db: Session = Depends(get_db)):
         project=_project_out(project, db, materials, approvals, certificates, deliveries),
         items=_activity_items(materials, approvals, certificates, deliveries, today),
     )
+
+
+@router.get("/{project_id}/audit-trail")
+def get_project_audit_trail(project_id: int, db: Session = Depends(get_db)):
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    project_material_ids = [material_id for (material_id,) in db.query(Material.id).filter(Material.project_id == project_id).all()]
+    trails = (
+        db.query(AuditTrail)
+        .options(joinedload(AuditTrail.user))
+        .filter(or_(AuditTrail.project_id == project_id, AuditTrail.material_id.in_(project_material_ids)))
+        .order_by(AuditTrail.timestamp.desc())
+        .limit(200)
+        .all()
+    )
+    return [
+        {
+            "id": trail.id,
+            "action": trail.action,
+            "performed_by": trail.user.name if trail.user else str(trail.performed_by_id),
+            "timestamp": trail.timestamp.isoformat() if trail.timestamp else None,
+            "details": trail.details,
+            "hash": trail.hash,
+            "previous_hash": trail.previous_hash,
+            "material_id": trail.material_id,
+            "result": trail.result,
+        }
+        for trail in trails
+    ]

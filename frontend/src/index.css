@@ -1,0 +1,491 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-app: var(--theme-bg-app);
+  --color-brand-sidebar: var(--theme-bg-sidebar);
+  --color-brand-card: var(--theme-bg-card);
+  --color-brand-sub: var(--theme-bg-sub);
+  --color-brand-border: var(--theme-border);
+  --color-brand-primary: var(--theme-text-primary);
+  --color-brand-secondary: var(--theme-text-secondary);
+  --color-brand-accent: var(--theme-accent);
+  --color-brand-accent-hover: var(--theme-accent-hover);
+  --color-brand-accent-text: var(--theme-accent-text);
+}
+
+@layer base {
+  body {
+    @apply font-sans antialiased bg-[var(--theme-bg-app)] text-[var(--theme-text-primary)] transition-colors duration-200 selection:bg-neutral-800 selection:text-white;
+  }
+}
+
+:root {
+  /* Dynamic Fallbacks corresponding to theme-light */
+  --theme-bg-app: #f5f5f5;
+  --theme-bg-sidebar: #ffffff;
+  --theme-bg-card: #ffffff;
+  --theme-bg-sub: #fafafa;
+  --theme-border: #e5e5e5;
+  --theme-text-primary: #171717;
+  --theme-text-secondary: #737373;
+  --theme-accent: #000000;
+  --theme-accent-hover: #171717;
+  --theme-accent-text: #ffffff;
+  --theme-sidebar-active: #171717;
+  --theme-sidebar-active-text: #ffffff;
+
+  --badge-high-bg: #fee2e2;
+  --badge-high-text: #991b1b;
+  --badge-high-border: #fca5a5;
+
+  --badge-warning-bg: #fef3c7;
+  --badge-warning-text: #92400e;
+  --badge-warning-border: #fcd34d;
+
+  --badge-success-bg: #d1fae5;
+  --badge-success-text: #065f46;
+  --badge-success-border: #6ee7b7;
+}
+
+.theme-light {
+  --theme-bg-app: #f5f5f5;
+  --theme-bg-sidebar: #ffffff;
+  --theme-bg-card: #ffffff;
+  --theme-bg-sub: #fafafa;
+  --theme-border: #e5e5e5;
+  --theme-text-primary: #171717;
+  --theme-text-secondary: #737373;
+  --theme-accent: #000000;
+  --theme-accent-hover: #171717;
+  --theme-accent-text: #ffffff;
+  --theme-sidebar-active: #171717;
+  --theme-sidebar-active-text: #ffffff;
+
+  --badge-high-bg: #fee2e2;
+  --badge-high-text: #991b1b;
+  --badge-high-border: #fca5a5;
+
+  --badge-warning-bg: #fef3c7;
+  --badge-warning-text: #92400e;
+  --badge-warning-border: #fcd34d;
+
+  --badge-success-bg: #d1fae5;
+  --badge-success-text: #065f46;
+  --badge-success-border: #6ee7b7;
+}
+
+.theme-sand {
+  --theme-bg-app: #f4efe8;
+  --theme-bg-sidebar: #eae3d8;
+  --theme-bg-card: #faf6f0;
+  --theme-bg-sub: #f0eae1;
+  --theme-border: #dbd3c5;
+  --theme-text-primary: #1c1917;
+  --theme-text-secondary: #78716c;
+  --theme-accent: #44403c;
+  --theme-accent-hover: #292524;
+  --theme-accent-text: #ffffff;
+  --theme-sidebar-active: #44403c;
+  --theme-sidebar-active-text: #ffffff;
+
+  --badge-high-bg: #ffedd5;
+  --badge-high-text: #7c2d12;
+  --badge-high-border: #fed7aa;
+
+  --badge-warning-bg: #fef3c7;
+  --badge-warning-text: #78350f;
+  --badge-warning-border: #fde68a;
+
+  --badge-success-bg: #f5f5f4;
+  --badge-success-text: #44403c;
+  --badge-success-border: #e7e5e4;
+}
+
+.theme-nordic {
+  --theme-bg-app: #ecf1f0;
+  --theme-bg-sidebar: #d9e3e1;
+  --theme-bg-card: #f5f8f7;
+  --theme-bg-sub: #e6eded;
+  --theme-border: #cbdcd8;
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #475569;
+  --theme-accent: #115e59;
+  --theme-accent-hover: #134e4a;
+  --theme-accent-text: #ffffff;
+  --theme-sidebar-active: #115e59;
+  --theme-sidebar-active-text: #ffffff;
+
+  --badge-high-bg: #ffe4e6;
+  --badge-high-text: #9f1239;
+  --badge-high-border: #fecdd3;
+
+  --badge-warning-bg: #fff7ed;
+  --badge-warning-text: #c2410c;
+  --badge-warning-border: #ffedd5;
+
+  --badge-success-bg: #ccfbf1;
+  --badge-success-text: #115e59;
+  --badge-success-border: #99f6e4;
+}
+
+.theme-cosmic {
+  --theme-bg-app: #09090b;
+  --theme-bg-sidebar: #18181b;
+  --theme-bg-card: #18181b;
+  --theme-bg-sub: #09090b;
+  --theme-border: #27272a;
+  --theme-text-primary: #ffffff;
+  /* Increased contrast from #d4d4d8 to #e5e5e5 */
+  --theme-text-secondary: #e5e5e5;
+  --theme-accent: #f4f4f5;
+  --theme-accent-hover: #e4e4e7;
+  --theme-accent-text: #09090b;
+  --theme-sidebar-active: #fafafa;
+  --theme-sidebar-active-text: #09090b;
+
+  --badge-high-bg: rgba(220, 38, 38, 0.15);
+  --badge-high-text: #fca5a5;
+  --badge-high-border: rgba(220, 38, 38, 0.4);
+
+  --badge-warning-bg: rgba(245, 158, 11, 0.15);
+  --badge-warning-text: #fcd34d;
+  --badge-warning-border: rgba(245, 158, 11, 0.4);
+
+  --badge-success-bg: rgba(16, 185, 129, 0.15);
+  --badge-success-text: #6ee7b7;
+  --badge-success-border: rgba(16, 185, 129, 0.4);
+}
+
+/* Cosmic Theme Status & Accessibility Overrides */
+.theme-cosmic .bg-emerald-50, 
+.theme-cosmic .bg-emerald-50\/10 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+.theme-cosmic .bg-amber-50, 
+.theme-cosmic .bg-amber-50\/10 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+.theme-cosmic .bg-red-50, 
+.theme-cosmic .bg-red-50\/10 {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+.theme-cosmic .text-emerald-950,
+.theme-cosmic .text-emerald-900,
+.theme-cosmic .text-emerald-850,
+.theme-cosmic .text-emerald-800,
+.theme-cosmic .text-emerald-700 {
+  color: #34d399 !important;
+}
+
+.theme-cosmic .text-amber-950,
+.theme-cosmic .text-amber-900,
+.theme-cosmic .text-amber-850,
+.theme-cosmic .text-amber-800,
+.theme-cosmic .text-amber-700 {
+  color: #fbbf24 !important;
+}
+
+.theme-cosmic .text-red-950,
+.theme-cosmic .text-red-900,
+.theme-cosmic .text-red-850,
+.theme-cosmic .text-red-800,
+.theme-cosmic .text-red-700 {
+  color: #fca5a5 !important;
+}
+
+/* Premium Dynamic Themes Utility Selectors */
+.premium-card {
+  background-color: var(--theme-bg-card) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--theme-text-primary) !important;
+}
+
+.premium-sidebar {
+  background-color: var(--theme-bg-sidebar) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--theme-text-primary) !important;
+}
+
+.premium-bg-app {
+  background-color: var(--theme-bg-app) !important;
+}
+
+.premium-bg-sub {
+  background-color: var(--theme-bg-sub) !important;
+}
+
+.premium-border {
+  border-color: var(--theme-border) !important;
+}
+
+.premium-border-b {
+  border-bottom-color: var(--theme-border) !important;
+}
+
+.premium-text-primary {
+  color: var(--theme-text-primary) !important;
+}
+
+.premium-text-secondary {
+  color: var(--theme-text-secondary) !important;
+}
+
+.premium-accent-bg {
+  background-color: var(--theme-accent) !important;
+  color: var(--theme-accent-text) !important;
+}
+
+.premium-sidebar-active {
+  background-color: var(--theme-sidebar-active) !important;
+  color: var(--theme-sidebar-active-text) !important;
+}
+
+/* 
+  Dynamic Theme Adapters:
+  Forces the main scrolling container and all its dashboard components, cards, tables, text elements, and forms 
+  to change their colors dynamically with the active aesthetic signature, ensuring high-contrast legibility.
+*/
+.theme-light main,
+.theme-sand main,
+.theme-nordic main,
+.theme-cosmic main {
+  background-color: var(--theme-bg-app) !important;
+  color: var(--theme-text-primary) !important;
+
+  /* Base tags mapping inside themed panels */
+  h1, h2, h3, h4, h5, h6, strong {
+    color: var(--theme-text-primary) !important;
+  }
+
+  p, span:not(.font-mono):not(.text-white):not([class*="text-red"]):not([class*="text-emerald"]):not([class*="text-blue"]):not([class*="text-amber"]):not([class*="bg-emerald"]):not([class*="bg-amber"]):not([class*="bg-red"]) {
+    color: var(--theme-text-secondary);
+  }
+
+  /* Structural backgrounds mapping */
+  .bg-neutral-50, 
+  #command-center-tab,
+  #product-passports-tab,
+  #lifecycle-tab,
+  #compliance-tab,
+  #audit-trail-tab,
+  #evidence-assistant-tab {
+    background-color: var(--theme-bg-app) !important;
+  }
+
+  /* Default Card background class overrides */
+  .bg-white {
+    background-color: var(--theme-bg-card) !important;
+  }
+
+  /* Sub-panels and secondary backgrounds mapping */
+  .bg-neutral-50\/50, 
+  .bg-neutral-100,
+  .bg-neutral-200\/60,
+  .bg-neutral-50 {
+    background-color: var(--theme-bg-sub) !important;
+  }
+
+  /* Explicit text color class overrides */
+  .text-neutral-950,
+  .text-neutral-900,
+  .text-neutral-850,
+  .text-neutral-800,
+  .text-neutral-750,
+  .text-neutral-700,
+  .text-black {
+    color: var(--theme-text-primary) !important;
+  }
+
+  .text-neutral-600,
+  .text-neutral-550,
+  .text-neutral-500,
+  .text-neutral-450,
+  .text-neutral-400,
+  .text-neutral-300,
+  .text-neutral-200,
+  .text-neutral-100 {
+    color: var(--theme-text-secondary) !important;
+  }
+
+  
+  
+  /* Cosmic theme overrides for project switcher dropdown components moved outside main container block for global applicability */
+  
+  .text-\[#a3a3a3\],
+  .text-\[#8c8c8c\],
+  .text-\[#737373\],
+  .text-\[#555\],
+  .text-\[#e5e5e5\],
+  .text-neutral-600 {
+    color: var(--theme-text-secondary) !important;
+  }
+
+  .text-\[#111111\],
+  .text-\[#475569\],
+  .text-\[#171717\],
+  .text-\[#dedede\] {
+    color: var(--theme-text-primary) !important;
+  }
+
+  /* Explicit border & divider overrides */
+  .border,
+  .border-neutral-100,
+  .border-neutral-150,
+  .border-neutral-200,
+  .border-neutral-250,
+  .border-neutral-200\/80,
+  .border-neutral-200\/95,
+  .divide-neutral-100,
+  .divide-neutral-150,
+  .border-b {
+    border-color: var(--theme-border) !important;
+  }
+
+  .divide-y > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--theme-border) !important;
+  }
+
+  /* Form controls styling mappings */
+  input, select, textarea {
+    background-color: var(--theme-bg-sub) !important;
+    color: var(--theme-text-primary) !important;
+    border-color: var(--theme-border) !important;
+  }
+
+  select option {
+    background-color: var(--theme-bg-card) !important;
+    color: var(--theme-text-primary) !important;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    background-color: var(--theme-bg-card) !important;
+    color: var(--theme-text-primary) !important;
+  }
+
+  /* Button and micro-accent overrides */
+  button.bg-black,
+  div.bg-black {
+    background-color: var(--theme-accent) !important;
+    color: var(--theme-accent-text) !important;
+  }
+
+  button.bg-black *,
+  div.bg-black * {
+    color: var(--theme-accent-text) !important;
+  }
+
+  .hover\:bg-neutral-900:hover {
+    background-color: var(--theme-accent-hover) !important;
+  }
+
+  /* Overrides for specific dark-styled elements to flow with the selected theme */
+  .bg-\[\#171717\],
+  .bg-\[\#1c1c1c\],
+  .bg-\[\#1f1f1f\],
+  .bg-\[\#fcfcfc\] {
+    background-color: var(--theme-bg-card) !important;
+    border-color: var(--theme-border) !important;
+  }
+}
+
+/* Global Cosmic theme overrides for project switcher dropdown components and similar UI elements floating outside 'main' */
+.theme-cosmic .bg-white,
+.theme-cosmic .bg-neutral-50 {
+  background-color: var(--theme-bg-card) !important;
+}
+.theme-cosmic .border-neutral-200,
+.theme-cosmic .border-neutral-100 {
+  border-color: var(--theme-border) !important;
+}
+.theme-cosmic .text-neutral-800,
+.theme-cosmic .text-neutral-900,
+.theme-cosmic .text-neutral-700 {
+  color: var(--theme-text-primary) !important;
+}
+.theme-cosmic .hover\:bg-neutral-50:hover {
+  background-color: var(--theme-bg-sub) !important;
+}
+.theme-cosmic .bg-neutral-50 {
+  background-color: var(--theme-bg-card) !important;
+}
+
+.theme-light aside,
+.theme-sand aside,
+.theme-nordic aside,
+.theme-cosmic aside {
+  background-color: var(--theme-bg-sidebar) !important;
+  color: var(--theme-text-primary) !important;
+
+  .bg-neutral-50 {
+    background-color: var(--theme-bg-sub) !important;
+  }
+
+  .bg-white {
+    background-color: var(--theme-bg-card) !important;
+  }
+}
+
+/* Ensure mobile header matches theme too */
+.theme-light header,
+.theme-sand header,
+.theme-nordic header,
+.theme-cosmic header {
+  background-color: var(--theme-bg-app) !important;
+  border-color: var(--theme-border) !important;
+  
+  span, h1, button {
+    color: var(--theme-text-primary) !important;
+  }
+}
+
+/* Dynamic status badges corresponding to the visual theme's signature */
+.badge-theme-high {
+  background-color: var(--badge-high-bg) !important;
+  color: var(--badge-high-text) !important;
+  border-color: var(--badge-high-border) !important;
+}
+
+.badge-theme-warning {
+  background-color: var(--badge-warning-bg) !important;
+  color: var(--badge-warning-text) !important;
+  border-color: var(--badge-warning-border) !important;
+}
+
+.badge-theme-success {
+  background-color: var(--badge-success-bg) !important;
+  color: var(--badge-success-text) !important;
+  border-color: var(--badge-success-border) !important;
+}
+
+/* Dynamic theme-aware brief card item hover and focus state */
+.brief-item-clickable {
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.brief-item-clickable:hover {
+  background-color: var(--theme-bg-card) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+  transform: translateY(-1px) !important;
+}
+
+.brief-item-clickable:active {
+  transform: scale(0.995) !important;
+}
+
+.theme-cosmic .text-neutral-900 {
+  color: var(--theme-text-primary) !important;
+}
+
+
+

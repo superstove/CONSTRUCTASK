@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session, joinedload
 
+from auth import get_current_user
 from database import get_db
 from intelligence import certificate_status, days_until_expiry
 from models import Certificate, Material
 from schemas import CertificateOut
 
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.get("/", response_model=list[CertificateOut])

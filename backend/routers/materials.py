@@ -1,15 +1,18 @@
+import json
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session, joinedload
 
+from auth import get_current_user, require_role
 from database import get_db
 from intelligence import approval_overdue_days, certificate_status, delivery_delay_days, delivery_status
-from models import Approval, Certificate, Delivery, Material, QRScan
-from schemas import MaterialEvidenceOut, MaterialOut, QRScanOut, ScanWarningOut
+from models import Approval, AuditTrail, Certificate, Delivery, Material, ProductPassport, Project, QRScan, User
+from schemas import MaterialCreate, MaterialEvidenceOut, MaterialOut, MaterialStageUpdate, ProductPassportOut, QRScanOut, ScanWarningOut
+from utils import record_audit_trail
 
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.get("/", response_model=list[MaterialOut])
@@ -20,12 +23,99 @@ def list_materials(project_id: int = 1, status: str | None = Query(default=None)
     return query.order_by(Material.id).all()
 
 
+@router.post("/", response_model=MaterialOut, dependencies=[Depends(require_role("Admin", "Project Manager", "Site Engineer"))])
+def create_material(material: MaterialCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    project = db.query(Project).filter(Project.id == material.project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    batch_number = material.batch_id.strip()[:100]
+    if not batch_number:
+        raise HTTPException(status_code=422, detail="batch_id is required")
+
+    new_material = Material(
+        project_id=material.project_id,
+        name=material.name.strip()[:200],
+        supplier=material.supplier.strip()[:200],
+        batch_number=batch_number,
+        qr_code=f"QR-{batch_number}",
+        status=material.status.strip().lower()[:50] or "pending",
+        category=material.category.strip()[:100] if material.category else None,
+        quantity=material.quantity,
+        unit=(material.unit or material.category or "unit").strip()[:50],
+    )
+    db.add(new_material)
+    db.flush()
+
+    passport_id = f"PP-{new_material.project_id}-{new_material.id}"
+    db.add(
+        ProductPassport(
+            material_id=new_material.id,
+            passport_number=passport_id,
+            passport_id=passport_id,
+            compliance_score=85,
+            carbon_score=1.2,
+            sustainability_score=75,
+            carbon_footprint=1.2,
+            status="active",
+            metadata_json=json.dumps({"category": new_material.category, "source": "material-create"}),
+        )
+    )
+    record_audit_trail(
+        db=db,
+        action="Manufactured",
+        performed_by_name=current_user.name,
+        details=f"Batch {new_material.batch_number} registered with {new_material.quantity} {new_material.unit}.",
+        material_id=new_material.id,
+        project_id=new_material.project_id
+    )
+    db.commit()
+    db.refresh(new_material)
+    return new_material
+
+
+@router.put("/{material_id}/stage", response_model=MaterialOut, dependencies=[Depends(require_role("Admin", "Project Manager", "QA Auditor", "Site Engineer"))])
+def update_material_stage(material_id: int, payload: MaterialStageUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    material = db.query(Material).filter(Material.id == material_id).first()
+    if not material:
+        raise HTTPException(status_code=404, detail="Material not found")
+
+    new_stage = payload.new_stage.strip().lower()
+    valid_stages = {"pending", "verified", "failed", "manufactured", "certified", "delivered", "approved", "installed", "audited"}
+    if new_stage not in valid_stages:
+        raise HTTPException(status_code=422, detail=f"Invalid stage. Must be one of: {', '.join(sorted(valid_stages))}")
+
+    material.status = new_stage
+    record_audit_trail(
+        db=db,
+        action="STAGE_UPDATED",
+        performed_by_name=current_user.name,
+        details=f"Material {material.name} stage changed to {new_stage}",
+        material_id=material.id,
+        project_id=material.project_id
+    )
+    db.commit()
+    db.refresh(material)
+    return material
+
+
+@router.get("/passports", response_model=list[ProductPassportOut])
+def list_passports(project_id: int = 1, db: Session = Depends(get_db)):
+    passports = (
+        db.query(ProductPassport)
+        .join(Material)
+        .filter(Material.project_id == project_id)
+        .all()
+    )
+    return passports
+
+
 def _scan_out(scan: QRScan) -> QRScanOut:
     return QRScanOut(
         id=scan.id,
         material_id=scan.material_id,
         project_id=scan.project_id,
-        scanned_by=scan.scanned_by,
+        scanned_by=scan.user.name if scan.user else str(scan.scanned_by),
         scan_time=scan.scan_time,
         location=scan.location,
         scan_type=scan.scan_type,
@@ -34,13 +124,14 @@ def _scan_out(scan: QRScan) -> QRScanOut:
     )
 
 
-@router.post("/verify")
+@router.post("/verify", dependencies=[Depends(require_role("Admin", "Project Manager", "QA Auditor", "Site Engineer", "Evidence Operator"))])
 def verify_material(
     qr_code: str,
-    scanned_by: str,
     location: str,
+    scanned_by: str = None,
     project_id: int = 1,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     # --- Input validation ---
     qr_code = qr_code.strip()[:100]
@@ -49,10 +140,10 @@ def verify_material(
 
     if not qr_code:
         raise HTTPException(status_code=422, detail="qr_code is required")
-    if not scanned_by:
-        raise HTTPException(status_code=422, detail="scanned_by is required")
     if not location:
         raise HTTPException(status_code=422, detail="location is required")
+
+    scanned_by = current_user.name
 
     material = (
         db.query(Material)
@@ -167,6 +258,34 @@ def verify_material(
     if not reasons:
         reasons.append("Material is verified, certificates are valid, approvals are clear, and site evidence is acceptable.")
 
+    result_map = {
+        "Approved for site use": "approved_for_site_use",
+        "Hold for review": "hold_for_review",
+        "Blocked from installation": "blocked_from_installation",
+    }
+    
+    db.add(
+        QRScan(
+            material_id=material.id,
+            project_id=project_id,
+            scanned_by=current_user.id,
+            scan_time=datetime.now(),
+            location=location,
+            scan_type="release_check",
+            result=result_map.get(decision, "blocked"),
+        )
+    )
+    record_audit_trail(
+        db=db,
+        action="MATERIAL_VERIFIED",
+        performed_by_name=scanned_by,
+        details=f"Material {material.name} (QR: {qr_code}) scanned at {location}. Decision: {decision}. Result: {result_map.get(decision, 'blocked')}",
+        material_id=material.id,
+        project_id=project_id,
+        result=result_map.get(decision, "blocked")
+    )
+    db.commit()
+
     return {
         "decision": decision,
         "material": material.name,
@@ -182,7 +301,7 @@ def verify_material(
 def all_scans(project_id: int = 1, db: Session = Depends(get_db)):
     scans = (
         db.query(QRScan)
-        .options(joinedload(QRScan.material))
+        .options(joinedload(QRScan.material), joinedload(QRScan.user))
         .filter(QRScan.project_id == project_id)
         .order_by(QRScan.scan_time.desc())
         .all()
@@ -332,7 +451,7 @@ def material_scans(material_id: int, db: Session = Depends(get_db)):
 
     scans = (
         db.query(QRScan)
-        .options(joinedload(QRScan.material))
+        .options(joinedload(QRScan.material), joinedload(QRScan.user))
         .filter(QRScan.material_id == material_id)
         .order_by(QRScan.scan_time.desc())
         .all()

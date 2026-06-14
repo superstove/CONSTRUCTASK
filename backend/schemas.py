@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ProjectCreate(BaseModel):
@@ -34,8 +34,29 @@ class MaterialOut(BaseModel):
     batch_number: str
     qr_code: str
     status: str
+    category: str | None = None
     quantity: int
     unit: str
+
+
+class MaterialCreate(BaseModel):
+    project_id: int
+    name: str
+    batch_id: str = Field(min_length=1, max_length=100)
+    supplier: str
+    category: str = "general"
+    status: str = "pending"
+    quantity: int = 1
+    unit: str | None = None
+
+
+class MaterialStageUpdate(BaseModel):
+    new_stage: str
+
+
+
+class ApprovalUpdate(BaseModel):
+    status: str
 
 
 class ApprovalOut(BaseModel):
@@ -144,6 +165,8 @@ class SupplierRiskOut(BaseModel):
     reason: str
     delayed_deliveries: int
     total_delay_days: int
+    total_deliveries: int
+    ontime_deliveries: int
 
 
 class ProjectActivityOut(BaseModel):
@@ -192,6 +215,8 @@ class DashboardOut(BaseModel):
     total_materials: int
     pending_approvals: int
     expiring_certs: int
+    total_deliveries: int
+    ontime_deliveries: int
     delayed_deliveries: int
     alerts: list[str]
     reasoning_sources: list[str]
@@ -206,6 +231,8 @@ class DashboardOut(BaseModel):
 class ChatRequest(BaseModel):
     question: str
     project_id: int = 1
+    user_id: int | None = None
+    role: str | None = None
 
 
 class ChatResponse(BaseModel):
@@ -216,3 +243,44 @@ class ChatResponse(BaseModel):
     mode: str
     reasoning_sources: list[str]
     confidence: str
+    follow_up_suggestions: list[str] = []
+    # Optional bar-chart payload: {"type": "bar", "title": str, "items": [{label, value, tone?, suffix?}]}
+    chart: dict | None = None
+
+
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    role: str
+
+
+class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    email: str
+    role: str
+
+
+class ProductPassportOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    material_id: int
+    passport_number: str
+    passport_id: str | None = None
+    compliance_score: int
+    carbon_score: float
+    sustainability_score: int | None = None
+    carbon_footprint: float | None = None
+    status: str
+
+
+class AssistantContextOut(BaseModel):
+    project: ProjectOut
+    materials: list[MaterialOut]
+    approvals: list[ApprovalOut]
+    certificates: list[CertificateOut]
+    deliveries: list[DeliveryOut]
+    users: list[UserOut]
