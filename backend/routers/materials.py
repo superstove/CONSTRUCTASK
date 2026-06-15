@@ -10,9 +10,10 @@ from intelligence import approval_overdue_days, certificate_status, delivery_del
 from models import Approval, AuditTrail, Certificate, Delivery, Material, ProductPassport, Project, QRScan, User
 from schemas import MaterialCreate, MaterialEvidenceOut, MaterialOut, MaterialStageUpdate, ProductPassportOut, QRScanOut, ScanWarningOut
 from utils import record_audit_trail
+from routers.projects import require_project_access
 
 
-router = APIRouter(dependencies=[Depends(get_current_user)])
+router = APIRouter(dependencies=[Depends(get_current_user), Depends(require_project_access)])
 
 
 @router.get("/", response_model=list[MaterialOut])

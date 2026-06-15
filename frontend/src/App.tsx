@@ -8,14 +8,15 @@ import WelcomeGuide from "./components/WelcomeGuide";
 import PublicVerify from "./components/PublicVerify";
 import QrLabel from "./components/QrLabel";
 import { supabase } from "./lib/supabaseClient";
-import CommandCenter from "./components/CommandCenter";
-import ProductPassports from "./components/ProductPassports";
-import LifecycleIntelligence from "./components/LifecycleIntelligence";
-import ComplianceHub from "./components/ComplianceHub";
-import AuditTrail from "./components/AuditTrail";
-import EvidenceAssistant from "./components/EvidenceAssistant";
-import ScanLog from "./components/ScanLog";
-import ProjectIntelligence from "./components/ProjectIntelligence";
+// Lazy-loaded per-tab screens — each becomes its own chunk so first load is light.
+const CommandCenter = React.lazy(() => import("./components/CommandCenter"));
+const ProductPassports = React.lazy(() => import("./components/ProductPassports"));
+const LifecycleIntelligence = React.lazy(() => import("./components/LifecycleIntelligence"));
+const ComplianceHub = React.lazy(() => import("./components/ComplianceHub"));
+const AuditTrail = React.lazy(() => import("./components/AuditTrail"));
+const EvidenceAssistant = React.lazy(() => import("./components/EvidenceAssistant"));
+const ScanLog = React.lazy(() => import("./components/ScanLog"));
+const ProjectIntelligence = React.lazy(() => import("./components/ProjectIntelligence"));
 import {
   askAssistant,
   createProject,
@@ -460,6 +461,7 @@ export default function App() {
         <main ref={mainRef} className="flex-1 overflow-y-auto relative premium-bg-app">
           <div ref={contentRef}>
           {/* Render Active View Tab */}
+          <React.Suspense fallback={<div className="p-10 text-[11px] font-mono uppercase tracking-widest text-neutral-400">Loading…</div>}>
           {activeTab === "command" && (
             loadError ? (
               <div className="p-8 max-w-3xl">
@@ -552,6 +554,7 @@ export default function App() {
           {activeTab === "scan" && (
             <ScanLog scanLogs={scansData?.logs || []} onRefresh={handleRefresh} selectedProjectId={selectedProjectId} />
           )}
+          </React.Suspense>
 
           </div>
         </main>

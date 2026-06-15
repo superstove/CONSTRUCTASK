@@ -6,9 +6,10 @@ from database import get_db
 from intelligence import certificate_status, days_until_expiry
 from models import Certificate, Material
 from schemas import CertificateOut
+from routers.projects import require_project_access
 
 
-router = APIRouter(dependencies=[Depends(get_current_user)])
+router = APIRouter(dependencies=[Depends(get_current_user), Depends(require_project_access)])
 
 
 @router.get("/", response_model=list[CertificateOut])

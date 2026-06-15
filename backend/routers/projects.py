@@ -1,6 +1,6 @@
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 
@@ -34,6 +34,17 @@ def _get_owned_project(project_id: int, db: Session, current_user: User) -> Proj
     if not allowed:
         raise HTTPException(status_code=404, detail="Project not found")
     return project
+
+
+def require_project_access(
+    project_id: int | None = Query(default=None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> None:
+    """Router dependency: if a ?project_id= is present, enforce that the caller owns it.
+    Used by the materials/compliance/approvals routers so they can't be read cross-account."""
+    if project_id is not None:
+        _get_owned_project(project_id, db, current_user)
 from schemas import (
     ActionQueueOut,
     DashboardOut,
