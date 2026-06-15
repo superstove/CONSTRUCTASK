@@ -6,7 +6,7 @@ ConstructAsk is an enterprise-grade compliance and supply-chain intelligence pla
 
 <div align="center">
   <br />
-  <img src="demo.mp4" alt="ConstructAsk Platform Demo" width="100%" />
+  <img src="demo.gif" alt="ConstructAsk Platform Demo" width="100%" />
   <br />
 </div>
 
