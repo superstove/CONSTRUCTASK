@@ -47,6 +47,51 @@ ConstructAsk is an enterprise-grade compliance and supply-chain intelligence pla
 
 ---
 
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TB
+    subgraph Client [Client Tier]
+        direction LR
+        UI["🖥️ Web Dashboard (React/Vite)"]
+        Scanner["📱 Field QR Scanner"]
+    end
+
+    subgraph AppServer [Application Tier (FastAPI)]
+        direction TB
+        API["⚙️ REST API Endpoints"]
+        Crypto["🔐 Ed25519 Signature Engine"]
+        Ledger["⛓️ Hash-Chained Audit Ledger"]
+        PDF["📑 PDF Report Generator"]
+    end
+
+    subgraph Data [Data & Intelligence Tier]
+        direction LR
+        DB[("🗄️ Relational DB (SQLAlchemy)")]
+        AI["🧠 AI Engine (LLM)"]
+    end
+
+    %% Client Interactions
+    UI <-->|"REST (JSON)"| API
+    Scanner -->|"Verification Request"| API
+
+    %% Internal API Routing
+    API <-->|"Sign & Verify DPP"| Crypto
+    API <-->|"Validate State Integrity"| Ledger
+    API -->|"Export Compliance"| PDF
+
+    %% Data Connections
+    API <-->|"Read/Write Records"| DB
+    API <-->|"Analyze Supplier Risk"| AI
+
+    %% Styling
+    style Client fill:transparent,stroke:#3b82f6,stroke-width:2px,stroke-dasharray: 5 5
+    style AppServer fill:transparent,stroke:#10b981,stroke-width:2px,stroke-dasharray: 5 5
+    style Data fill:transparent,stroke:#a855f7,stroke-width:2px,stroke-dasharray: 5 5
+```
+
+---
+
 ## 🚀 Getting Started (Local Development)
 
 ### 1. Clone the repository
