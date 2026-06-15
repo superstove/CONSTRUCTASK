@@ -1,5 +1,5 @@
 {
-  "name": "ConstructAsk",
+  "name": "Construct Ask",
   "description": "Enterprise Digital Product Passport (DPP) trust and trace intelligence engine featuring immutable hash-chained audit trails, compliance tracking, and conversational evidence analysis.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

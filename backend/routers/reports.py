@@ -249,7 +249,7 @@ def get_executive_report(project_id: int, db: Session = Depends(get_db),
         "generated_by": current_user.name,
     }
     pdf_bytes = build_executive_report(payload)
-    filename = f"ConstructAsk_Report_{project.name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    filename = f"Construct Ask_Report_{project.name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

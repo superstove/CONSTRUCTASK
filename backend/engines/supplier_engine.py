@@ -1,5 +1,5 @@
 """
-ConstructAsk V3 — Supplier Engine
+Construct Ask V3 — Supplier Engine
 
 Groups materials and deliveries by supplier, computes per-supplier
 reliability metrics, and assigns risk levels.

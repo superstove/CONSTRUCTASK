@@ -26,7 +26,7 @@ export default function WelcomeGuide({ onClose }: { onClose: () => void }) {
         <div className="sticky top-0 bg-white border-b border-neutral-100 px-7 py-5 flex items-start justify-between rounded-t-2xl">
           <div>
             <span className="text-[10px] font-mono bg-black text-white px-2.5 py-1 rounded font-bold uppercase tracking-widest">
-              Welcome to ConstructAsk
+              Welcome to Construct Ask
             </span>
             <h2 className="text-xl font-extrabold tracking-tight text-neutral-900 font-sans mt-2.5">
               What this platform does
@@ -48,7 +48,7 @@ export default function WelcomeGuide({ onClose }: { onClose: () => void }) {
             it, and where it was installed. Today that story lives in scattered PDFs and registers
             that no one can verify.{" "}
             <strong className="text-neutral-900">
-              ConstructAsk turns it into a Digital Product Passport: one trusted, audit-ready
+              Construct Ask turns it into a Digital Product Passport: one trusted, audit-ready
               record per material — with an AI layer that reads the evidence and tells your team
               what is blocking the project and what to fix first.
             </strong>

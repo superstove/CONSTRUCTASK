@@ -817,7 +817,7 @@ ${JSON.stringify(serializedCerts, null, 2)}
 
   try {
     if (ai) {
-      const systemInstruction = `You are "ConstructAsk Evidence Assistant" - a professional, domain-focused Operational Trust & Compliance Intelligence agent designed by Anton Solutions.
+      const systemInstruction = `You are "Construct Ask Evidence Assistant" - a professional, domain-focused Operational Trust & Compliance Intelligence agent designed by Anton Solutions.
 Your goals are to answer the project manager's queries with precision, using the provided project and product passport data.
 
 Maintain an authoritative, technical, and objective tone. Do not use promotional language or hypes.
@@ -874,7 +874,7 @@ Lineage tracking verifies that all 5 products started as 'Manufactured' from raw
 ### Manager Action
 ● **IMMEDIATE RECOMMENDATION:** Check verification hashes for new concrete composite deliveries to ensure absolute supply path integrity before site application.`;
       } else {
-        reply += `Welcome to ConstructAsk Operational Intelligence desk.
+        reply += `Welcome to Construct Ask Operational Intelligence desk.
 
 We found 5 Material Passports on NH66 Slope Protection:
 1. Rockfall Barrier Panel (Audited)
@@ -1333,7 +1333,7 @@ app.post("/api/chat/", async (req, res) => {
         model: "gemini-3.5-flash",
         contents: [{ text: projectContextChat }, { text: question }],
         config: {
-          systemInstruction: `You are "ConstructAsk Evidence Assistant". Answer with precision using the provided project data. Use markdown formatting.`,
+          systemInstruction: `You are "Construct Ask Evidence Assistant". Answer with precision using the provided project data. Use markdown formatting.`,
           temperature: 0.2,
         },
       });
@@ -1410,7 +1410,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[ConstructAsk] Server operational on http://localhost:${PORT} in ${process.env.NODE_ENV || "development"} mode.`);
+    console.log(`[Construct Ask] Server operational on http://localhost:${PORT} in ${process.env.NODE_ENV || "development"} mode.`);
   });
 }
 

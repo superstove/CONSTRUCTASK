@@ -57,7 +57,7 @@ export default function PublicVerify({ materialId }: { materialId: string }) {
           <div className="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center">
             <BadgeCheck className="w-5 h-5 text-white" />
           </div>
-          <span className="text-lg font-bold tracking-tight text-neutral-900">ConstructAsk</span>
+          <span className="text-lg font-bold tracking-tight text-neutral-900">Construct Ask</span>
           <span className="hidden sm:inline text-[10px] font-mono uppercase tracking-widest text-neutral-400 border-l border-neutral-300 pl-2 ml-1">
             Material Verification
           </span>
@@ -168,7 +168,7 @@ export default function PublicVerify({ materialId }: { materialId: string }) {
         )}
 
         <p className="text-center text-[10px] text-neutral-400 pt-2">
-          Powered by ConstructAsk · Verifiable Digital Product Passport
+          Powered by Construct Ask · Verifiable Digital Product Passport
         </p>
       </div>
     </div>

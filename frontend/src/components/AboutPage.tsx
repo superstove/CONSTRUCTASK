@@ -38,7 +38,7 @@ export default function AboutPage() {
             <Sparkles className="w-3 h-3" /> About This Platform
           </span>
           <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight premium-text-primary">
-            ConstructAsk
+            Construct Ask
           </h1>
           <p className="text-sm premium-text-secondary mt-1.5 max-w-xl">
             An enterprise-grade construction compliance and material traceability platform — 
@@ -56,7 +56,7 @@ export default function AboutPage() {
       {/* Info Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
         {[
-          { icon: Code2, label: "Project", value: "ConstructAsk", sub: "Construction DPP Platform" },
+          { icon: Code2, label: "Project", value: "Construct Ask", sub: "Construction DPP Platform" },
           { icon: Building, label: "Client", value: "Anton Solutions", sub: "Infrastructure & Engineering" },
           { icon: User, label: "Developer", value: "Abhijith AK", sub: "Full-Stack Engineer" },
           { icon: Clock, label: "Development", value: "2 Months", sub: "Design → Deployment" },
@@ -126,7 +126,7 @@ export default function AboutPage() {
       {/* Footer Credit */}
       <div className="text-center py-8 border-t premium-border">
         <p className="text-xs premium-text-secondary font-mono">
-          © {new Date().getFullYear()} <span className="font-bold premium-text-primary">ConstructAsk</span>
+          © {new Date().getFullYear()} <span className="font-bold premium-text-primary">Construct Ask</span>
         </p>
         <p className="text-[11px] premium-text-secondary mt-1">
           Designed & Developed by <span className="font-bold text-cyan-500">Abhijith AK</span> for <span className="font-bold premium-text-primary">Anton Solutions</span>

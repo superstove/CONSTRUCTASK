@@ -25,7 +25,7 @@ ensure_demo_schema()
 
 # --- App ---
 app = FastAPI(
-    title="ConstructAsk API",
+    title="Construct Ask API",
     description="Construction Project Intelligence Platform — V3",
     version="3.0.0",
 )
@@ -61,7 +61,7 @@ app.include_router(dpp_verify.router, prefix="/api/dpp", tags=["verifiable-dpp"]
 @app.get("/")
 def health():
     return {
-        "status": "ConstructAsk API running",
+        "status": "Construct Ask API running",
         "version": "3.0.0",
         "platform": "Project Intelligence Platform",
     }

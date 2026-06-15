@@ -43,7 +43,7 @@ export default function LoginScreen({ onDemoLogin }: { onDemoLogin: () => void }
             </div>
             <div>
               <h1 className="text-lg font-extrabold tracking-tight text-white font-sans leading-none">
-                ConstructAsk
+                Construct Ask
               </h1>
               <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-500 font-bold drop-shadow-[0_0_2px_rgba(6,182,212,0.8)]">
                 Project Intelligence Platform

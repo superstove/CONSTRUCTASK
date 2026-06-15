@@ -1,5 +1,5 @@
 """
-ConstructAsk V3 — Project Intelligence Engines
+Construct Ask V3 — Project Intelligence Engines
 
 This package contains all intelligence engine modules:
 - readiness_engine: Readiness scoring with component breakdowns and improvement simulation

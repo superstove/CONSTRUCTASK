@@ -53,7 +53,7 @@ export default function ProjectIntelligence({
               Operational Intelligence
             </h2>
             <p className="text-xs text-neutral-500 mt-1 max-w-2xl">
-              Live readiness, supplier health, risks and delivery signals — all from connected ConstructAsk records.
+              Live readiness, supplier health, risks and delivery signals — all from connected Construct Ask records.
             </p>
           </div>
         </div>

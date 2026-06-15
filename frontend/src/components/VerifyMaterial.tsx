@@ -173,7 +173,7 @@ export default function VerifyMaterial({
     } catch (err: any) {
       setCheckResult({
         status: "error",
-        message: `Backend release check failed: ${err?.message || "Unable to reach ConstructAsk API."}`,
+        message: `Backend release check failed: ${err?.message || "Unable to reach Construct Ask API."}`,
         expiredCerts: []
       });
     } finally {

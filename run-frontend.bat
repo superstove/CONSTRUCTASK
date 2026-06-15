@@ -1,5 +1,5 @@
 @echo off
-REM ConstructAsk frontend — same as: cd frontend ^&^& npm run dev
+REM Construct Ask frontend — same as: cd frontend ^&^& npm run dev
 REM KEEP THIS WINDOW OPEN.
 cd /d "%~dp0frontend"
 call npm run dev

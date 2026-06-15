@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🏗️ CONSTRUCTASK</h1>
+  <h1>🏗️ CONSTRUCT ASK</h1>
   
   <h3>Construction Project Intelligence & Compliance Platform</h3>
 
@@ -13,16 +13,16 @@
 <br/>
 
 <div align="center">
-  <img src="cover.png" alt="ConstructAsk Dashboard" width="100%" />
+  <img src="cover.png" alt="Construct Ask Dashboard" width="100%" />
 </div>
 
 <br/>
 
-ConstructAsk is an enterprise-grade compliance and supply-chain intelligence platform built for modern construction projects. It replaces manual paperwork and scattered emails with **Cryptographically Verifiable Digital Product Passports (DPP)**, providing a tamper-proof, real-time single source of truth for materials from the factory floor to final installation.
+Construct Ask is an enterprise-grade compliance and supply-chain intelligence platform built for modern construction projects. It replaces manual paperwork and scattered emails with **Cryptographically Verifiable Digital Product Passports (DPP)**, providing a tamper-proof, real-time single source of truth for materials from the factory floor to final installation.
 
 <div align="center">
   <br />
-  <img src="demo.gif" alt="ConstructAsk Platform Demo" width="100%" />
+  <img src="demo.gif" alt="Construct Ask Platform Demo" width="100%" />
   <br />
 </div>
 

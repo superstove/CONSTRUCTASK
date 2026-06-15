@@ -226,7 +226,7 @@ export async function downloadProjectReportPdf(projectId: string | number): Prom
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `ConstructAsk_Report_${id}_${new Date().toISOString().slice(0, 10)}.pdf`;
+  a.download = `Construct Ask_Report_${id}_${new Date().toISOString().slice(0, 10)}.pdf`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -366,7 +366,7 @@ export function mapMaterialToPassport(
     complianceRating,
     standards: standards.length ? standards : ["Project material evidence"],
     currentStage: stageFromMaterialStatus(material.status),
-    verifier: "ConstructAsk Backend",
+    verifier: "Construct Ask Backend",
     qrPayload: material.qr_code,
     auditChain: materialAuditBlocks,
   };

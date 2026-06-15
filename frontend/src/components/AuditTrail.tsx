@@ -292,7 +292,7 @@ export default function AuditTrail({ auditTrail, onRefresh, isRefreshing }: Audi
           </div>
           <div className="bg-neutral-50 border border-neutral-150 p-4 rounded-xl space-y-1">
             <span className="text-[9px] font-mono text-neutral-400 block font-bold">Source</span>
-            <span className="font-bold text-neutral-808 text-xs block mt-1">ConstructAsk backend</span>
+            <span className="font-bold text-neutral-808 text-xs block mt-1">Construct Ask backend</span>
             <span className="text-[9.3px] text-neutral-450 block font-mono">No external claim unless integrated</span>
           </div>
         </div>

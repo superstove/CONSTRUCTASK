@@ -448,7 +448,7 @@ export default function App() {
                 <div className="w-3.5 h-3.5 border border-white rounded-full"></div>
               </div>
               <span className="text-xs font-bold font-sans tracking-tight premium-text-primary leading-tight">
-                ConstructAsk
+                Construct Ask
               </span>
             </div>
             
@@ -485,7 +485,7 @@ export default function App() {
             <button
               onClick={() => setShowWelcome(true)}
               className="w-7 h-7 rounded-full border border-neutral-250 bg-white text-neutral-500 hover:text-black hover:bg-neutral-50 transition-colors text-xs font-bold cursor-pointer flex items-center justify-center"
-              title="What is ConstructAsk? Open the platform guide"
+              title="What is Construct Ask? Open the platform guide"
               aria-label="Open platform guide"
             >
               ?

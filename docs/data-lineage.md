@@ -1,4 +1,4 @@
-# ConstructAsk V3 — Data Lineage Map
+# Construct Ask V3 — Data Lineage Map
 
 Every visible number in the UI is traced to its database source, API endpoint, and calculation method.
 

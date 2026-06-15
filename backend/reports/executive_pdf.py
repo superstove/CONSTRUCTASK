@@ -1,5 +1,5 @@
 """
-ConstructAsk Enterprise Intelligence Report (PDF)
+Construct Ask Enterprise Intelligence Report (PDF)
 =================================================
 
 Replaces the old jsPDF report with a proper executive-grade PDF:
@@ -99,7 +99,7 @@ def _footer(c: pdf_canvas.Canvas, project_name: str, page_label: str, generated_
     
     c.setFillColor(GRAY)
     c.setFont("Helvetica-Bold", 8)
-    c.drawString(MARGIN, y, "ConstructAsk")
+    c.drawString(MARGIN, y, "Construct Ask")
     
     c.setFont("Helvetica", 8)
     c.drawString(MARGIN + 62, y, f"·  {project_name}")
@@ -215,7 +215,7 @@ def _draw_cover(c: pdf_canvas.Canvas, project, verify_url: str, gen_dt: datetime
             brand_x = MARGIN
     c.setFillColor(WHITE)
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(brand_x, PAGE_H - 48, "CONSTRUCTASK")
+    c.drawString(brand_x, PAGE_H - 48, "CONSTRUCT ASK")
     c.setFillColor(colors.HexColor("#94A3B8"))
     c.setFont("Helvetica", 8.5)
     c.drawString(brand_x, PAGE_H - 60, "Project Intelligence Platform · Digital Product Passports")
@@ -234,7 +234,7 @@ def _draw_cover(c: pdf_canvas.Canvas, project, verify_url: str, gen_dt: datetime
     c.drawString(MARGIN, PAGE_H - 118, f"{project.name} · {project.location}")
     c.drawString(MARGIN, PAGE_H - 132, f"Generated {gen_dt.strftime('%B %d, %Y · %H:%M')}")
 
-    # ── About ConstructAsk (plain-language so any reader understands) ────────
+    # ── About Construct Ask (plain-language so any reader understands) ────────
     y = PAGE_H - 200
     c.setFillColor(GRAY); c.setFont("Helvetica-Bold", 8)
     c.drawString(MARGIN, y, "ABOUT THIS REPORT")
@@ -244,7 +244,7 @@ def _draw_cover(c: pdf_canvas.Canvas, project, verify_url: str, gen_dt: datetime
     y -= 16
     c.setFillColor(GRAY); c.setFont("Helvetica", 10)
     intro = (
-        "ConstructAsk is a construction project intelligence platform. For every material it "
+        "Construct Ask is a construction project intelligence platform. For every material it "
         "maintains a Digital Product Passport — supplier, certificates, QR scans, and a "
         "tamper-evident audit trail — and uses AI to answer one question: is this project on track, "
         "and what should be fixed first. This report is generated directly from live project records."
@@ -619,8 +619,8 @@ def build_executive_report(payload: dict) -> bytes:
     """Render all pages and return the PDF as bytes."""
     buf = io.BytesIO()
     c = pdf_canvas.Canvas(buf, pagesize=A4)
-    c.setTitle(f"ConstructAsk Report — {payload['project'].name}")
-    c.setAuthor("ConstructAsk")
+    c.setTitle(f"Construct Ask Report — {payload['project'].name}")
+    c.setAuthor("Construct Ask")
     c.setSubject("Executive Intelligence Report")
 
     project = payload["project"]

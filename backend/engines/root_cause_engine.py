@@ -1,5 +1,5 @@
 """
-ConstructAsk V3 — Root Cause Engine
+Construct Ask V3 — Root Cause Engine
 =====================================
 
 Builds cause-effect-impact chains explaining WHY project readiness is reduced.

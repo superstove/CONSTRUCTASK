@@ -797,7 +797,7 @@ export default function CommandCenter({
 
           <button
             onClick={() => {
-              const summaryText = `EXECUTIVE SUMMARY - CONSTRUCTASK [${selectedProjectId}]
+              const summaryText = `EXECUTIVE SUMMARY - CONSTRUCT ASK [${selectedProjectId}]
 ${executiveBriefItems.map((item: string, index: number) => `${index + 1}. ${item}`).join("\n")}`;
               navigator.clipboard.writeText(summaryText);
               triggerToast("Executive summary brief text copied successfully to your clipboard!");

@@ -1,5 +1,5 @@
 """
-ConstructAsk V3 — Readiness Engine
+Construct Ask V3 — Readiness Engine
 
 Computes a weighted readiness score for a project based on four components:
 materials verification, certificate validity, approval status, and delivery

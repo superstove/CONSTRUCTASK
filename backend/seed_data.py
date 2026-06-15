@@ -392,4 +392,4 @@ def seed_database() -> None:
 
 if __name__ == "__main__":
     seed_database()
-    print("ConstructAsk sample data seeded.")
+    print("Construct Ask sample data seeded.")

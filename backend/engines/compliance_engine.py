@@ -1,5 +1,5 @@
 """
-ConstructAsk V3 — Compliance Engine
+Construct Ask V3 — Compliance Engine
 
 Analyses certificate validity across a project, identifies compliance gaps
 (materials without valid certificates), and computes an overall compliance

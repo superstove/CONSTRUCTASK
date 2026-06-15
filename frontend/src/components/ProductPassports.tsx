@@ -630,7 +630,7 @@ export default function ProductPassports({
                       />
                       <div className="flex-1 space-y-1.5 text-center sm:text-left">
                         <h4 className="text-[10px] font-bold text-neutral-800 uppercase tracking-widest font-mono">
-                          ConstructAsk QR / Passport Identifier
+                          Construct Ask QR / Passport Identifier
                         </h4>
                         <p className="text-neutral-500 text-xs leading-relaxed font-light">
                           Site operators scan this material's QR code to pull its passport and run a release check instantly.

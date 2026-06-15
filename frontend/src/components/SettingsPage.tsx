@@ -683,7 +683,7 @@ function ApiTab() {
         <SectionHeader
           icon={Key}
           title="API Keys"
-          subtitle="Manage keys for programmatic access to the ConstructAsk API"
+          subtitle="Manage keys for programmatic access to the Construct Ask API"
           action={
             <AccentButton onClick={() => setShowNewKey(true)}>
               <Plus className="w-4 h-4" /> Create API Key
@@ -906,7 +906,7 @@ function ApiTab() {
 
 function BrandingTab() {
   const [brandColor, setBrandColor] = useState("#0B0F17");
-  const [footerText, setFooterText] = useState("ConstructAsk · Anton Solutions · Verified Material Passport");
+  const [footerText, setFooterText] = useState("Construct Ask · Anton Solutions · Verified Material Passport");
   const [saved, setSaved] = useState(false);
 
   const handleSave = () => {

@@ -153,7 +153,7 @@ export default function Sidebar({
       title: "System",
       items: [
         { id: "settings", name: "Settings", icon: Settings, description: "Profile, users & config" },
-        { id: "about", name: "About ConstructAsk", icon: Info, description: "Credits & platform info" },
+        { id: "about", name: "About Construct Ask", icon: Info, description: "Credits & platform info" },
       ]
     }
   ];
@@ -199,7 +199,7 @@ export default function Sidebar({
               </div>
               <div>
                 <h1 className="text-sm font-bold tracking-tight premium-text-primary leading-tight">
-                  ConstructAsk
+                  Construct Ask
                 </h1>
                 <p className="text-[9px] font-mono uppercase tracking-widest premium-text-secondary font-bold mt-0.5 whitespace-nowrap">
                   PROJECT INTELLIGENCE
@@ -394,7 +394,7 @@ export default function Sidebar({
           {/* Footer Credits */}
           <div className="px-5 py-3 border-t premium-border">
             <p className="text-[9px] premium-text-secondary font-mono text-center leading-relaxed">
-              © {new Date().getFullYear()} ConstructAsk
+              © {new Date().getFullYear()} Construct Ask
             </p>
             <p className="text-[8px] premium-text-secondary font-mono text-center mt-0.5">
               Engineered by <span className="text-cyan-500 font-bold">Abhijith AK</span> for <span className="font-bold premium-text-primary">Anton Solutions</span>

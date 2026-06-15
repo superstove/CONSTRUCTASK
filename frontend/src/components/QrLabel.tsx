@@ -28,7 +28,7 @@ export default function QrLabel({ materialId }: { materialId: string }) {
       <div className="bg-white border border-neutral-300 rounded-2xl w-[340px] p-6 text-center shadow-sm">
         <div className="flex items-center justify-center gap-1.5 mb-4">
           <BadgeCheck className="w-4 h-4 text-neutral-900" />
-          <span className="text-sm font-bold tracking-tight text-neutral-900">ConstructAsk</span>
+          <span className="text-sm font-bold tracking-tight text-neutral-900">Construct Ask</span>
         </div>
 
         {loading ? (
