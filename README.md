@@ -53,11 +53,11 @@ ConstructAsk is an enterprise-grade compliance and supply-chain intelligence pla
 flowchart TB
     subgraph Client [Client Tier]
         direction LR
-        UI["🖥️ Web Dashboard (React/Vite)"]
+        UI["🖥️ Web Dashboard React/Vite"]
         Scanner["📱 Field QR Scanner"]
     end
 
-    subgraph AppServer [Application Tier (FastAPI)]
+    subgraph AppServer [Application Tier - FastAPI]
         direction TB
         API["⚙️ REST API Endpoints"]
         Crypto["🔐 Ed25519 Signature Engine"]
@@ -65,23 +65,23 @@ flowchart TB
         PDF["📑 PDF Report Generator"]
     end
 
-    subgraph Data [Data & Intelligence Tier]
+    subgraph Data [Data and Intelligence Tier]
         direction LR
-        DB[("🗄️ Relational DB (SQLAlchemy)")]
-        AI["🧠 AI Engine (LLM)"]
+        DB[("🗄️ Relational DB SQLAlchemy")]
+        AI["🧠 AI Engine LLM"]
     end
 
     %% Client Interactions
-    UI <-->|"REST (JSON)"| API
+    UI <-->|"REST JSON"| API
     Scanner -->|"Verification Request"| API
 
     %% Internal API Routing
-    API <-->|"Sign & Verify DPP"| Crypto
+    API <-->|"Sign and Verify DPP"| Crypto
     API <-->|"Validate State Integrity"| Ledger
     API -->|"Export Compliance"| PDF
 
     %% Data Connections
-    API <-->|"Read/Write Records"| DB
+    API <-->|"Read and Write Records"| DB
     API <-->|"Analyze Supplier Risk"| AI
 
     %% Styling
