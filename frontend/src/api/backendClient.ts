@@ -302,6 +302,7 @@ export function mapCertificate(certificate: FastApiCertificate): ComplianceCerti
     status: titleStatus(certificate.status),
     documentUrl: "#",
     scope: certificate.material_name || `Material ${certificate.material_id}`,
+    materialId: String(certificate.material_id),
   };
 }
 
@@ -785,6 +786,16 @@ export async function fetchAuditTrail(projectId: number | string): Promise<Array
   details: string;
 }>> {
   return apiFetch(`/api/projects/${numericId(projectId)}/audit-trail`);
+}
+
+export async function updateSustainabilityMetrics(
+  materialId: number | string,
+  payload: { carbon_footprint: number; sustainability_score: number }
+): Promise<FastApiPassport> {
+  return apiFetch<FastApiPassport>(`/api/passports/material/${materialId}/sustainability`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
 }
 
 export type FrontendUser = {

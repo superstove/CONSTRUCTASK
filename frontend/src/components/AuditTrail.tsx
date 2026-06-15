@@ -76,7 +76,7 @@ export default function AuditTrail({ auditTrail, onRefresh, isRefreshing }: Audi
   ];
 
   return (
-    <div id="audit-trail-tab" className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8 bg-neutral-50 transition-all">
+    <div id="audit-trail-tab" className="p-4 sm:p-6 lg:p-8 w-full space-y-6 sm:space-y-8 bg-neutral-50 transition-all">
       <section id="audit-executive-header" className="flex flex-col md:flex-row md:items-center justify-between border-b border-neutral-200 pb-5 gap-4">
         <div>
           <span className="text-[10px] font-mono bg-black text-white px-2.5 py-1 rounded font-bold uppercase tracking-widest">
@@ -97,7 +97,7 @@ export default function AuditTrail({ auditTrail, onRefresh, isRefreshing }: Audi
         </div>
       </section>
 
-      <section id="audit-context-panel" className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs grid grid-cols-1 md:grid-cols-4 gap-6">
+      <section id="audit-context-panel" className="bg-white border border-neutral-200 rounded-2xl p-6 md:p-8 shadow-xs grid grid-cols-1 md:grid-cols-4 gap-6">
         <div>
           <span className="text-[9px] font-mono text-neutral-400 font-bold block uppercase tracking-wider">Project</span>
           <p className="text-xs font-bold text-neutral-900 mt-1.5 truncate">Selected project</p>
@@ -162,79 +162,74 @@ export default function AuditTrail({ auditTrail, onRefresh, isRefreshing }: Audi
         )}
 
         {activeSubTab !== "sources" && (
-          <div className="space-y-4 relative before:absolute before:top-2 before:bottom-2 before:left-6 before:w-[1.5px] before:bg-neutral-250 animate-fadeIn">
+          <div className="relative animate-fadeIn ml-2 sm:ml-4 mt-6">
             {filteredBlocks.length === 0 && (
               <div className="bg-white border border-neutral-200 rounded-2xl p-6 text-sm text-neutral-500">
                 No audit events match this view. Try clearing the search or switching to All Events.
               </div>
             )}
 
-            {filteredBlocks.map((block, idx) => (
-              <div key={`${block.passportId}-${block.index}-${idx}`} id={`audit-record-${idx}`} className="flex gap-4 relative group">
-                <div className="w-12 h-12 rounded-xl border border-neutral-200 bg-white shadow-sm flex flex-col justify-center items-center shrink-0 z-10 font-mono">
-                  <span className="text-[9.5px] text-neutral-450 font-bold uppercase">Event</span>
-                  <span className="font-bold text-neutral-805 text-sm leading-none pt-0.5">{block.index + 1}</span>
-                </div>
+            {filteredBlocks.length > 0 && (
+              <div className="absolute top-4 bottom-8 left-[11px] w-[2px] premium-bg-sub border-l premium-border z-0" />
+            )}
 
-                <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-sm flex-1 space-y-4 hover:border-black transition-colors">
-                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b border-neutral-100 pb-2.5">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-neutral-900 text-sm">
+            {filteredBlocks.map((block, idx) => {
+              const isFlagged = block.status === "Flagged";
+              
+              return (
+                <div key={`${block.passportId}-${block.index}-${idx}`} id={`audit-record-${idx}`} className="relative flex items-start gap-5 mb-8 group">
+                  {/* Timeline Node */}
+                  <div className={`relative z-10 flex items-center justify-center w-6 h-6 rounded-full border-[3px] bg-white shrink-0 mt-0.5 shadow-sm transition-all ${
+                    isFlagged ? "border-red-200" : "border-neutral-200 group-hover:border-[var(--theme-accent-hover)]"
+                  }`}>
+                    {isFlagged ? (
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
+                    ) : (
+                      <div className="w-1.5 h-1.5 rounded-full bg-neutral-300 group-hover:bg-[var(--theme-accent-hover)] transition-colors" />
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0 pb-1">
+                    <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5 sm:gap-3">
+                        <span className={`text-[15px] tracking-tight font-bold ${isFlagged ? "text-red-700" : "premium-text-primary"}`}>
                           {readableAction(block.action)}
                         </span>
-                        <span className={`font-bold text-[10px] uppercase px-2 py-0.5 rounded-full ${
-                          block.status === "Flagged"
-                            ? "bg-red-50 text-red-700 border border-red-100"
-                            : "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                        }`}>
-                          {block.status === "Flagged" ? "Needs attention" : "Recorded"}
+                        <span className="text-xs premium-text-secondary font-medium">
+                          {block.passportName || "Unknown"} <span className="font-mono text-[10px] text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded ml-1">{block.passportCode}</span>
                         </span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-neutral-400 font-medium">
-                        <span className="flex items-center gap-1">
-                          <User className="w-3.5 h-3.5 text-neutral-300" />
-                          By <strong className="text-neutral-600">{block.operator}</strong>
+                        <div className="flex-1" />
+                        <span className="text-[10px] font-mono text-neutral-400 font-bold uppercase tracking-wider whitespace-nowrap mt-1 sm:mt-0">
+                          {new Date(block.timestamp).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                         </span>
-                      </div>
+                    </div>
+                    
+                    <div className="text-xs premium-text-secondary mt-1.5 flex items-center gap-2">
+                      <span className="flex items-center gap-1"><User className="w-3 h-3" /> <strong className="premium-text-primary">{block.operator}</strong></span>
+                      {isFlagged && <span className="bg-red-50 text-red-600 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase">Needs Attention</span>}
                     </div>
 
-                    <span className="text-[10px] text-neutral-400 font-mono font-bold uppercase flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-neutral-300 shrink-0" />
-                      {new Date(block.timestamp).toLocaleString("en-US", {
-                        hourCycle: "h23",
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div className="bg-neutral-50 border border-neutral-150 p-3 rounded-xl">
-                      <span className="block text-neutral-400 text-[9px] font-mono font-bold uppercase">What happened</span>
-                      <p className="text-xs text-neutral-750 leading-relaxed mt-1">{block.details || readableAction(block.action)}</p>
-                    </div>
-                    <div className="bg-neutral-50 border border-neutral-150 p-3 rounded-xl">
-                      <span className="block text-neutral-400 text-[9px] font-mono font-bold uppercase">Material / Batch</span>
-                      <p className="text-xs text-neutral-750 leading-relaxed mt-1">
-                        {block.passportName || "Unknown material"} / {block.passportCode || "Unknown batch"}
-                      </p>
-                    </div>
-                    <div className="bg-neutral-50 border border-neutral-150 p-3 rounded-xl">
-                      <span className="block text-neutral-400 text-[9px] font-mono font-bold uppercase">Why it matters</span>
-                      <p className="text-xs text-neutral-750 leading-relaxed mt-1">{whyItMatters(block)}</p>
+                    <div className="mt-3.5 bg-white border premium-border rounded-xl p-4 shadow-xs transition-shadow hover:shadow-sm">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div>
+                            <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-neutral-400 block mb-1.5">Action payload</span>
+                            <p className="text-xs premium-text-primary font-medium leading-relaxed">{block.details || readableAction(block.action)}</p>
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-neutral-400 block mb-1.5">Impact</span>
+                            <p className="text-xs premium-text-secondary leading-relaxed">{whyItMatters(block)}</p>
+                          </div>
+                        </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
         {activeSubTab === "sources" && (
-          <div id="evidence-sources-catalog" className="bg-white border rounded-2xl p-6 shadow-xs space-y-4 animate-fadeIn">
+          <div id="evidence-sources-catalog" className="bg-white border rounded-2xl p-6 md:p-8 shadow-xs space-y-4 animate-fadeIn">
             <h3 className="text-xs font-mono font-bold uppercase text-neutral-400 border-b pb-3 block">
               What This Audit View Uses
             </h3>
@@ -280,7 +275,7 @@ export default function AuditTrail({ auditTrail, onRefresh, isRefreshing }: Audi
         </p>
       </section>
 
-      <section id="audit-evidence" className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-xs space-y-4">
+      <section id="audit-evidence" className="bg-white border border-neutral-200 rounded-2xl p-6 md:p-8 shadow-xs space-y-4">
         <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-400 border-b pb-3 font-mono">
           Legend
         </h3>
@@ -303,7 +298,7 @@ export default function AuditTrail({ auditTrail, onRefresh, isRefreshing }: Audi
         </div>
       </section>
 
-      <section id="audit-actions" className="premium-bg-sub premium-text-primary border premium-border rounded-2xl p-6 shadow-xs space-y-4">
+      <section id="audit-actions" className="premium-bg-sub premium-text-primary border premium-border rounded-2xl p-6 md:p-8 shadow-xs space-y-4">
         <div className="flex items-center justify-between border-b premium-border-b pb-3">
           <h4 className="text-[10px] font-mono font-bold uppercase premium-text-secondary tracking-widest">
             Audit Follow-Up

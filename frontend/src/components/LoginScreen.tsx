@@ -31,31 +31,34 @@ export default function LoginScreen({ onDemoLogin }: { onDemoLogin: () => void }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
-      <div className="w-full max-w-sm">
-        <div className="bg-white border border-neutral-200 rounded-2xl shadow-sm p-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#05070A] px-4 bg-cover bg-center" style={{ backgroundImage: `url('/hero-bg.jpg')` }}>
+      {/* Background Overlay */}
+      <div className="absolute inset-0 bg-[#05070A]/80 backdrop-blur-sm z-0"></div>
+
+      <div className="w-full max-w-sm relative z-10">
+        <div className="bg-[#0B0F17]/90 backdrop-blur-xl border border-[#1A2433] rounded-2xl shadow-2xl shadow-black/50 p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center shrink-0">
-              <div className="w-4 h-4 border border-white rounded-full"></div>
+            <div className="w-10 h-10 bg-[#1A2433] rounded-xl flex items-center justify-center shrink-0 border border-[#1A2433] shadow-inner">
+              <div className="w-4 h-4 border-2 border-cyan-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.5)]"></div>
             </div>
             <div>
-              <h1 className="text-lg font-extrabold tracking-tight text-neutral-900 font-sans leading-none">
+              <h1 className="text-lg font-extrabold tracking-tight text-white font-sans leading-none">
                 ConstructAsk
               </h1>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-500 font-bold drop-shadow-[0_0_2px_rgba(6,182,212,0.8)]">
                 Project Intelligence Platform
               </span>
             </div>
           </div>
 
-          <p className="text-xs text-neutral-500 mb-6 leading-relaxed">
+          <p className="text-xs text-neutral-400 mb-6 leading-relaxed">
             Sign in to access materials, approvals, compliance evidence, and the AI assistant.
           </p>
 
           <button
             onClick={handleGoogleSignIn}
             disabled={busy}
-            className="w-full flex items-center justify-center gap-3 border border-neutral-300 rounded-xl px-4 py-3 text-sm font-bold text-neutral-800 bg-white hover:bg-neutral-50 transition-colors disabled:opacity-60 cursor-pointer"
+            className="w-full flex items-center justify-center gap-3 border border-[#1A2433] rounded-xl px-4 py-3 text-sm font-bold text-white bg-[#05070A] hover:bg-white/5 transition-colors disabled:opacity-60 cursor-pointer shadow-inner"
           >
             {busy ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -73,27 +76,27 @@ export default function LoginScreen({ onDemoLogin }: { onDemoLogin: () => void }
           {(import.meta as any).env?.VITE_ENABLE_DEMO !== "false" && (
             <>
               <div className="flex items-center gap-3 my-5">
-                <div className="flex-1 h-px bg-neutral-200"></div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold">or</span>
-                <div className="flex-1 h-px bg-neutral-200"></div>
+                <div className="flex-1 h-px bg-[#1A2433]"></div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 font-bold">or</span>
+                <div className="flex-1 h-px bg-[#1A2433]"></div>
               </div>
 
               <button
                 onClick={onDemoLogin}
-                className="w-full flex items-center justify-center gap-2 bg-black text-white rounded-xl px-4 py-3 text-sm font-bold hover:bg-neutral-800 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 bg-white/10 border border-white/10 text-white rounded-xl px-4 py-3 text-sm font-bold hover:bg-white/20 transition-all cursor-pointer shadow-md"
               >
-                <ShieldCheck className="w-4 h-4" />
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 Continue with Demo Account
               </button>
             </>
           )}
 
           {error && (
-            <p className="mt-4 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
+            <p className="mt-4 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>
           )}
         </div>
 
-        <p className="text-center text-[10px] font-mono text-neutral-400 mt-4 uppercase tracking-widest">
+        <p className="text-center text-[10px] font-mono text-neutral-500 mt-6 uppercase tracking-widest">
           Tip: the Demo Account has the full sample data
         </p>
       </div>

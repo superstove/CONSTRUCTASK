@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Calendar, CheckCircle, AlertTriangle, ShieldCheck, ExternalLink, ShieldAlert, QrCode, Loader2 } from "lucide-react";
+import { Search, Calendar, CheckCircle, AlertTriangle, ShieldCheck, ExternalLink, ShieldAlert, QrCode, Loader2, MapPin } from "lucide-react";
 import QrScannerModal from "./QrScannerModal";
 import { verifyMaterialRelease } from "../api/backendClient";
 
@@ -59,7 +59,7 @@ export default function ScanLog({ scanLogs, onRefresh, selectedProjectId = "1" }
   );
 
   return (
-    <div id="scan-log-tab" className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8 bg-neutral-50 min-h-screen">
+    <div id="scan-log-tab" className="p-4 sm:p-6 lg:p-8 w-full space-y-6 sm:space-y-8 bg-neutral-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b pb-5 gap-4">
         <div>
@@ -125,72 +125,84 @@ export default function ScanLog({ scanLogs, onRefresh, selectedProjectId = "1" }
       {/* Grid: Table + Drawer Detail */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Table of Scans (8 cols / 2 thirds) */}
-        <div className="lg:col-span-2 bg-white border border-neutral-200 rounded-2xl shadow-sm overflow-hidden flex flex-col premium-card">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[550px]" id="scans-data-table">
-              <thead>
-                <tr className="bg-neutral-50 border-b text-neutral-500 font-bold uppercase tracking-wider text-[9.5px]">
-                  <th className="py-3.5 px-4 font-mono">Timestamp</th>
-                  <th className="py-3.5 px-4">Material / Batch</th>
-                  <th className="py-3.5 px-4">Scanned By</th>
-                  <th className="py-3.5 px-4">Site Location</th>
-                  <th className="py-3.5 px-4 text-center">Status</th>
-                  <th className="py-3.5 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100 font-sans">
-                {filteredLogs.map((log) => {
-                  const isSelected = selectedScan?.id === log.id;
-                  const isVerified = log.status === "Verified";
-                  return (
-                    <tr 
-                      key={log.id} 
-                      className={`hover:bg-neutral-50/40 transition-colors ${
-                        isSelected ? "bg-neutral-50/80" : ""
-                      }`}
-                    >
-                      <td className="py-3.5 px-4 font-mono text-[10.5px] text-neutral-500">
-                        {new Date(log.timestamp).toLocaleDateString()} {new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <div className="font-bold text-neutral-800 text-xs">{log.productName}</div>
-                        <span className="font-mono text-[9px] text-neutral-400 bg-neutral-100 py-0.5 px-1 rounded inline-block mt-0.5 font-bold uppercase">
-                          {log.productCode}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-neutral-600 font-medium">
-                        {log.scannedBy}
-                      </td>
-                      <td className="py-3.5 px-4 text-neutral-450 truncate max-w-40" title={log.location}>
-                        {log.location}
-                      </td>
-                      <td className="py-3.5 px-4 text-center">
-                        <span className={`inline-block font-mono text-[9px] py-0.5 px-2 rounded-full font-bold uppercase border ${
-                          isVerified 
-                            ? "bg-emerald-100 border-emerald-250 text-emerald-800" 
-                            : "bg-amber-100 border-amber-250 text-amber-800"
-                        }`}>
-                          {log.status === "Verified" ? "Verified" : "Flagged"}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={() => setSelectedScan(log)}
-                          className="text-neutral-700 font-bold hover:text-black hover:underline cursor-pointer text-[11px]"
-                        >
-                          View Signature
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          {filteredLogs.length === 0 && (
-            <div className="p-8 text-center text-neutral-450 font-mono text-xs">
+        {/* Grid of Scans (2 thirds) */}
+        <div className="lg:col-span-2">
+          {filteredLogs.length === 0 ? (
+            <div className="bg-white border border-neutral-200 rounded-2xl p-8 text-center text-neutral-450 font-mono text-xs premium-card">
               No matching scan history records found. Try adjusting filter query.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {filteredLogs.map((log) => {
+                const isSelected = selectedScan?.id === log.id;
+                const isVerified = log.status === "Verified";
+                
+                return (
+                  <div 
+                    key={log.id} 
+                    onClick={() => setSelectedScan(log)}
+                    className={`flex flex-col bg-white border rounded-2xl cursor-pointer transition-all hover:shadow-md hover:border-neutral-300 premium-card overflow-hidden ${isSelected ? 'ring-2 ring-neutral-900 border-neutral-900 shadow-md' : 'border-neutral-200 shadow-sm'}`}
+                  >
+                    {/* Map Preview Area */}
+                    <div className="h-28 w-full bg-[#0a101d] relative overflow-hidden group border-b border-[#1A2433]">
+                       {/* Topographic map pattern */}
+                       <div className="absolute inset-0 opacity-20 transition-transform duration-700 group-hover:scale-110" style={{ backgroundImage: 'repeating-radial-gradient( circle at 0 0, transparent 0, rgba(255,255,255,0.15) 1px, transparent 1px, transparent 20px )' }} />
+                       
+                       {/* GPS marker */}
+                       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+                          <div className="w-8 h-8 bg-blue-500/20 rounded-full animate-ping absolute" />
+                          <MapPin className="w-5 h-5 text-blue-600 relative z-10 drop-shadow-sm fill-blue-100" />
+                       </div>
+                       
+                       {/* Location Tag */}
+                       <div className="absolute bottom-2 left-3 right-3 flex justify-between items-end gap-2">
+                         <span className="bg-[#0B0F17]/80 backdrop-blur-md px-2.5 py-1.5 rounded-lg shadow-sm text-[9px] font-mono font-bold text-white truncate border border-[#1A2433]">
+                           {log.location}
+                         </span>
+                         <div className="bg-[#0B0F17]/80 backdrop-blur-md p-1.5 rounded-lg shadow-sm border border-[#1A2433]">
+                           <QrCode className="w-3.5 h-3.5 text-cyan-400" />
+                         </div>
+                       </div>
+                    </div>
+
+                    <div className="p-5 flex flex-col flex-1">
+                       <div className="flex justify-between items-start mb-4 gap-2">
+                         <div className="min-w-0">
+                           <h3 className="font-extrabold text-neutral-900 text-sm truncate">{log.productName}</h3>
+                           <p className="font-mono text-[10px] text-neutral-500 mt-1 uppercase tracking-wider">{log.productCode}</p>
+                         </div>
+                         <span className={`shrink-0 font-mono text-[9px] py-1 px-2.5 rounded-full font-bold uppercase border tracking-wider ${
+                              isVerified 
+                                ? "bg-emerald-50 border-emerald-200 text-emerald-700" 
+                                : "bg-red-50 border-red-200 text-red-700"
+                         }`}>
+                           {log.status}
+                         </span>
+                       </div>
+
+                       <div className="space-y-2.5 mt-auto pt-4 border-t border-neutral-100">
+                         <div className="flex justify-between items-center text-xs">
+                           <span className="text-neutral-500 font-medium">Inspector</span>
+                           <span className="font-bold text-white flex items-center gap-1.5">
+                             <div className="w-4 h-4 rounded-full bg-[#1A2433] border border-[#2a364a] flex items-center justify-center text-[8px] font-bold text-cyan-400">{log.scannedBy.charAt(0)}</div>
+                             {log.scannedBy}
+                           </span>
+                         </div>
+                         <div className="flex justify-between items-center text-xs">
+                           <span className="text-neutral-500 font-medium">Time</span>
+                           <span className="font-mono text-[10px] text-neutral-300 font-bold bg-[#1A2433] border border-[#2a364a] px-1.5 py-0.5 rounded shadow-sm">
+                             {new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                           </span>
+                         </div>
+                       </div>
+
+                       <button className="mt-5 w-full py-2.5 bg-[#1A2433]/50 hover:bg-[#1A2433] text-white text-xs font-bold tracking-wide uppercase rounded-xl transition-all border border-[#1A2433] hover:border-cyan-500/50 flex items-center justify-center gap-2 group-hover:text-cyan-400 group-hover:border-cyan-500/50 shadow-sm">
+                         View Evidence <ExternalLink className="w-3 h-3" />
+                       </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

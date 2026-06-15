@@ -21,6 +21,7 @@ export interface ComplianceCertificate {
   status: "Active" | "Expiring" | "Expired" | "Revoked";
   documentUrl: string;
   scope: string;
+  materialId?: string;
 }
 
 export interface ProductPassport {
@@ -55,7 +56,7 @@ export interface Project {
   globalAuditLogsCount: number;
 }
 
-export type VisualTheme = "light" | "sand" | "nordic" | "cosmic";
+export type VisualTheme = "light" | "sand" | "nordic" | "dark";
 
 export interface DashboardMetrics {
   project_readiness: number;

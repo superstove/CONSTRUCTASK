@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Geist Sans", "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   
   --color-brand-app: var(--theme-bg-app);
   --color-brand-sidebar: var(--theme-bg-sidebar);
@@ -20,6 +20,10 @@
 @layer base {
   body {
     @apply font-sans antialiased bg-[var(--theme-bg-app)] text-[var(--theme-text-primary)] transition-colors duration-200 selection:bg-neutral-800 selection:text-white;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
   }
 }
 
@@ -132,82 +136,82 @@
   --badge-success-border: #99f6e4;
 }
 
-.theme-cosmic {
-  --theme-bg-app: #09090b;
-  --theme-bg-sidebar: #18181b;
-  --theme-bg-card: #18181b;
-  --theme-bg-sub: #09090b;
-  --theme-border: #27272a;
+.theme-dark {
+  --theme-bg-app: #05070A;
+  --theme-bg-sidebar: #0B0F17;
+  --theme-bg-card: #0B0F17;
+  --theme-bg-sub: #05070A;
+  --theme-border: #1A2433;
   --theme-text-primary: #ffffff;
-  /* Increased contrast from #d4d4d8 to #e5e5e5 */
-  --theme-text-secondary: #e5e5e5;
-  --theme-accent: #f4f4f5;
-  --theme-accent-hover: #e4e4e7;
-  --theme-accent-text: #09090b;
-  --theme-sidebar-active: #fafafa;
-  --theme-sidebar-active-text: #09090b;
+  --theme-text-secondary: #94a3b8;
+  --theme-accent: #14B8A6;
+  --theme-accent-hover: #0d9488;
+  --theme-accent-text: #05070A;
+  --theme-sidebar-active: #14B8A6;
+  --theme-sidebar-active-text: #05070A;
 
-  --badge-high-bg: rgba(220, 38, 38, 0.15);
-  --badge-high-text: #fca5a5;
-  --badge-high-border: rgba(220, 38, 38, 0.4);
+  --badge-high-bg: rgba(239, 68, 68, 0.15);
+  --badge-high-text: #EF4444;
+  --badge-high-border: rgba(239, 68, 68, 0.4);
 
   --badge-warning-bg: rgba(245, 158, 11, 0.15);
-  --badge-warning-text: #fcd34d;
+  --badge-warning-text: #F59E0B;
   --badge-warning-border: rgba(245, 158, 11, 0.4);
 
   --badge-success-bg: rgba(16, 185, 129, 0.15);
-  --badge-success-text: #6ee7b7;
+  --badge-success-text: #10B981;
   --badge-success-border: rgba(16, 185, 129, 0.4);
 }
 
-/* Cosmic Theme Status & Accessibility Overrides */
-.theme-cosmic .bg-emerald-50, 
-.theme-cosmic .bg-emerald-50\/10 {
+/* Dark Theme Status & Accessibility Overrides */
+.theme-dark .bg-emerald-50, 
+.theme-dark .bg-emerald-50\/10 {
   background-color: rgba(16, 185, 129, 0.15) !important;
+}
+.theme-dark .text-emerald-700, 
+.theme-dark .text-emerald-800 {
+  color: #10B981 !important;
+}
+.theme-dark .border-emerald-200 {
   border-color: rgba(16, 185, 129, 0.4) !important;
 }
 
-.theme-cosmic .bg-amber-50, 
-.theme-cosmic .bg-amber-50\/10 {
-  background-color: rgba(245, 158, 11, 0.15) !important;
-  border-color: rgba(245, 158, 11, 0.4) !important;
-}
-
-.theme-cosmic .bg-red-50, 
-.theme-cosmic .bg-red-50\/10 {
+.theme-dark .bg-red-50, 
+.theme-dark .bg-red-50\/10 {
   background-color: rgba(239, 68, 68, 0.15) !important;
+}
+.theme-dark .text-red-700,
+.theme-dark .text-red-800,
+.theme-dark .text-red-900 {
+  color: #EF4444 !important;
+}
+.theme-dark .border-red-200 {
   border-color: rgba(239, 68, 68, 0.4) !important;
 }
 
-.theme-cosmic .text-emerald-950,
-.theme-cosmic .text-emerald-900,
-.theme-cosmic .text-emerald-850,
-.theme-cosmic .text-emerald-800,
-.theme-cosmic .text-emerald-700 {
-  color: #34d399 !important;
-}
 
-.theme-cosmic .text-amber-950,
-.theme-cosmic .text-amber-900,
-.theme-cosmic .text-amber-850,
-.theme-cosmic .text-amber-800,
-.theme-cosmic .text-amber-700 {
+.theme-dark .text-amber-950,
+.theme-dark .text-amber-900,
+.theme-dark .text-amber-850,
+.theme-dark .text-amber-800,
+.theme-dark .text-amber-700 {
   color: #fbbf24 !important;
 }
 
-.theme-cosmic .text-red-950,
-.theme-cosmic .text-red-900,
-.theme-cosmic .text-red-850,
-.theme-cosmic .text-red-800,
-.theme-cosmic .text-red-700 {
+.theme-dark .text-red-950,
+.theme-dark .text-red-900,
+.theme-dark .text-red-850,
+.theme-dark .text-red-800,
+.theme-dark .text-red-700 {
   color: #fca5a5 !important;
 }
 
 /* Premium Dynamic Themes Utility Selectors */
 .premium-card {
   background-color: var(--theme-bg-card) !important;
-  border-color: var(--theme-border) !important;
+  border-color: color-mix(in srgb, var(--theme-border) 55%, transparent) !important;
   color: var(--theme-text-primary) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 30px rgba(15, 23, 42, 0.06) !important;
 }
 
 .premium-sidebar {
@@ -258,7 +262,7 @@
 .theme-light main,
 .theme-sand main,
 .theme-nordic main,
-.theme-cosmic main {
+.theme-dark main {
   background-color: var(--theme-bg-app) !important;
   color: var(--theme-text-primary) !important;
 
@@ -399,30 +403,30 @@
 }
 
 /* Global Cosmic theme overrides for project switcher dropdown components and similar UI elements floating outside 'main' */
-.theme-cosmic .bg-white,
-.theme-cosmic .bg-neutral-50 {
+.theme-dark .bg-white,
+.theme-dark .bg-neutral-50 {
   background-color: var(--theme-bg-card) !important;
 }
-.theme-cosmic .border-neutral-200,
-.theme-cosmic .border-neutral-100 {
+.theme-dark .border-neutral-200,
+.theme-dark .border-neutral-100 {
   border-color: var(--theme-border) !important;
 }
-.theme-cosmic .text-neutral-800,
-.theme-cosmic .text-neutral-900,
-.theme-cosmic .text-neutral-700 {
+.theme-dark .text-neutral-800,
+.theme-dark .text-neutral-900,
+.theme-dark .text-neutral-700 {
   color: var(--theme-text-primary) !important;
 }
-.theme-cosmic .hover\:bg-neutral-50:hover {
+.theme-dark .hover\:bg-neutral-50:hover {
   background-color: var(--theme-bg-sub) !important;
 }
-.theme-cosmic .bg-neutral-50 {
+.theme-dark .bg-neutral-50 {
   background-color: var(--theme-bg-card) !important;
 }
 
 .theme-light aside,
 .theme-sand aside,
 .theme-nordic aside,
-.theme-cosmic aside {
+.theme-dark aside {
   background-color: var(--theme-bg-sidebar) !important;
   color: var(--theme-text-primary) !important;
 
@@ -439,7 +443,7 @@
 .theme-light header,
 .theme-sand header,
 .theme-nordic header,
-.theme-cosmic header {
+.theme-dark header {
   background-color: var(--theme-bg-app) !important;
   border-color: var(--theme-border) !important;
   
@@ -483,7 +487,7 @@
   transform: scale(0.995) !important;
 }
 
-.theme-cosmic .text-neutral-900 {
+.theme-dark .text-neutral-900 {
   color: var(--theme-text-primary) !important;
 }
 

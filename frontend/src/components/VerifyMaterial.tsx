@@ -233,7 +233,7 @@ export default function VerifyMaterial({
   );
 
   return (
-    <div id="verify-material-tab" className="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto space-y-6 sm:space-y-8 bg-neutral-50 min-h-screen transition-all">
+    <div id="verify-material-tab" className="p-4 sm:p-6 lg:p-8 w-full space-y-6 sm:space-y-8 bg-neutral-50 min-h-screen transition-all">
       {showScanner && (
         <QrScannerModal title="Scan Material QR" onResult={handleScanResult} onClose={() => setShowScanner(false)} />
       )}

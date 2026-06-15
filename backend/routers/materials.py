@@ -49,15 +49,34 @@ def create_material(material: MaterialCreate, db: Session = Depends(get_db), cur
     db.flush()
 
     passport_id = f"PP-{new_material.project_id}-{new_material.id}"
+    
+    # Dynamically derive realistic baseline metrics based on material type
+    category_lower = (new_material.category or "").lower() + " " + new_material.name.lower()
+    carbon_by_category = {
+        "reinforcement": 1.8, "grid": 1.8, "barrier": 1.8,
+        "drainage": 1.1, "drain": 1.1,
+        "anchoring": 2.4, "anchor": 2.4, "bolt": 2.4, "bar": 2.4,
+        "geotextile": 0.9, "textile": 0.9, "mat": 0.9,
+        "concrete": 3.2, "additive": 3.2,
+    }
+    
+    matched_carbon = 1.2
+    for kw, val in carbon_by_category.items():
+        if kw in category_lower:
+            matched_carbon = val
+            break
+            
+    base_compliance = 78 if new_material.status == "pending" else 85
+
     db.add(
         ProductPassport(
             material_id=new_material.id,
             passport_number=passport_id,
             passport_id=passport_id,
-            compliance_score=85,
-            carbon_score=1.2,
-            sustainability_score=75,
-            carbon_footprint=1.2,
+            compliance_score=base_compliance,
+            carbon_score=matched_carbon,
+            sustainability_score=max(50, base_compliance - 10),
+            carbon_footprint=matched_carbon,
             status="active",
             metadata_json=json.dumps({"category": new_material.category, "source": "material-create"}),
         )

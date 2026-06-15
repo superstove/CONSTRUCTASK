@@ -17,6 +17,9 @@ const AuditTrail = React.lazy(() => import("./components/AuditTrail"));
 const EvidenceAssistant = React.lazy(() => import("./components/EvidenceAssistant"));
 const ScanLog = React.lazy(() => import("./components/ScanLog"));
 const ProjectIntelligence = React.lazy(() => import("./components/ProjectIntelligence"));
+const AboutPage = React.lazy(() => import("./components/AboutPage"));
+const SettingsPage = React.lazy(() => import("./components/SettingsPage"));
+import GlobalSearchModal from "./components/GlobalSearchModal";
 import {
   askAssistant,
   createProject,
@@ -36,7 +39,8 @@ import {
 } from "./api/backendClient";
 
 import { Project, ProductPassport, AuditBlock, ComplianceCertificate, VisualTheme, DashboardMetrics } from "./types";
-import { Building, ChevronDown, Check, Plus, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Building, ChevronDown, Check, Plus, AlertTriangle, ShieldCheck, Search } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function App() {
   const [activeTab, setActiveTab ] = useState<ActiveTab>("command");
@@ -140,9 +144,22 @@ export default function App() {
   
   const [selectedPassportId, setSelectedPassportId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const [activeTheme, setActiveTheme] = useState<VisualTheme>(() => {
     const saved = localStorage.getItem("premium_theme");
-    return (saved as VisualTheme) || "light";
+    return (saved as VisualTheme) || "dark";
   });
   
   useEffect(() => {
@@ -288,7 +305,9 @@ export default function App() {
   // Navigate to tab and optionally focus a passport or record or fill prompt
   const handleNavigateTo = (tab: ActiveTab, actionQuery?: string) => {
     setActiveTab(tab);
-    if (actionQuery) {
+    if (tab === "passports" && actionQuery) {
+      setSelectedPassportId(actionQuery);
+    } else if (actionQuery) {
       setPrefilledPrompt(actionQuery);
     }
   };
@@ -388,6 +407,7 @@ export default function App() {
         activeUser={activeUser}
         usersList={usersList}
         onSelectSubTab={handleSelectSubTab}
+        onNavigateToTab={handleNavigateTo}
         onLogout={handleLogout}
         onSwitchUser={(usr) => setActiveUser(usr)}
         onAddUser={async (usr) => {
@@ -434,8 +454,26 @@ export default function App() {
             
             <div className="hidden lg:flex items-center">
               <span className="text-sm font-bold font-sans text-neutral-800">
-                {activeTab === "command" ? "Command Center" : activeTab === "project-intelligence" ? "Project Intelligence" : activeTab === "passports" ? "Product Passports" : activeTab === "lifecycle" ? "Lifecycle Intelligence" : activeTab === "compliance" ? "Compliance Hub" : activeTab === "audit" ? "Audit Trail" : activeTab === "scan" ? "Scan Log" : "Evidence Assistant"}
+                {activeTab === "command" ? "Command Center" : activeTab === "project-intelligence" ? "Project Intelligence" : activeTab === "passports" ? "Product Passports" : activeTab === "lifecycle" ? "Lifecycle Intelligence" : activeTab === "compliance" ? "Compliance Hub" : activeTab === "audit" ? "Audit Trail" : activeTab === "scan" ? "Scan Log" : activeTab === "settings" ? "Settings" : activeTab === "about" ? "About" : "Evidence Assistant"}
               </span>
+            </div>
+            
+            <div className="hidden md:flex ml-4">
+              <button 
+                onClick={() => setIsSearchOpen(true)}
+                className="relative flex items-center gap-2 lg:w-72 w-52 bg-neutral-900/50 hover:bg-neutral-800/80 border border-white/10 px-4 py-2 rounded-full text-neutral-300 transition-all duration-300 group cursor-text overflow-hidden shadow-inner"
+              >
+                {/* Glowing border effect on hover */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/0 via-cyan-500/10 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                
+                <Search className="w-4 h-4 text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)] animate-pulse group-hover:scale-110 transition-transform duration-300 relative z-10" />
+                
+                <span className="text-xs font-medium flex-1 text-left relative z-10 tracking-wide text-neutral-400 group-hover:text-neutral-200 transition-colors">Search anything...</span>
+                <div className="flex items-center gap-1 opacity-80 relative z-10">
+                  <span className="text-[9px] font-mono border border-white/20 bg-white/10 rounded-md px-1.5 py-0.5 font-bold shadow-xs text-white/90 backdrop-blur-md">Ctrl</span>
+                  <span className="text-[9px] font-mono border border-white/20 bg-white/10 rounded-md px-1.5 py-0.5 font-bold shadow-xs text-white/90 backdrop-blur-md">K</span>
+                </div>
+              </button>
             </div>
           </div>
           
@@ -456,14 +494,32 @@ export default function App() {
         </header>
 
         {showWelcome && <WelcomeGuide onClose={closeWelcome} />}
+        
+        <GlobalSearchModal 
+          isOpen={isSearchOpen}
+          onClose={() => setIsSearchOpen(false)}
+          passports={passports}
+          certificates={certificates}
+          approvals={approvalsData}
+          auditTrail={auditTrail}
+          onNavigate={handleNavigateTo}
+        />
 
         {/* Scrollable View Area */}
         <main ref={mainRef} className="flex-1 overflow-y-auto relative premium-bg-app">
           <div ref={contentRef}>
           {/* Render Active View Tab */}
           <React.Suspense fallback={<div className="p-10 text-[11px] font-mono uppercase tracking-widest text-neutral-400">Loading…</div>}>
-          {activeTab === "command" && (
-            loadError ? (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {activeTab === "command" && (
+                loadError ? (
               <div className="p-8 max-w-3xl">
                 <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-sm text-red-800">
                   <strong className="block text-red-900 mb-1">Project metrics could not load.</strong>
@@ -530,6 +586,7 @@ export default function App() {
               certificates={certificates}
               approvals={approvalsData}
               projectName={activeProj?.name}
+              auditTrail={auditTrail}
               onUpdateApproval={handleUpdateApproval}
               onNavigateToTab={handleNavigateTo}
             />
@@ -554,6 +611,16 @@ export default function App() {
           {activeTab === "scan" && (
             <ScanLog scanLogs={scansData?.logs || []} onRefresh={handleRefresh} selectedProjectId={selectedProjectId} />
           )}
+
+          {activeTab === "about" && (
+            <AboutPage />
+          )}
+
+          {activeTab === "settings" && (
+            <SettingsPage />
+          )}
+            </motion.div>
+          </AnimatePresence>
           </React.Suspense>
 
           </div>

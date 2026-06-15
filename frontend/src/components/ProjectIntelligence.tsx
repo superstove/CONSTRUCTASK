@@ -99,24 +99,24 @@ export default function ProjectIntelligence({
 
       <div className="space-y-6">
         {activeTab === "needs-attention" && (
-          <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold font-sans text-lg mb-4">Workflow Dependency Engine</h3>
-            <p className="text-xs text-neutral-500 mb-6">Visual relationship mapping of systemic blockers, constraints, and cascading lifecycle impacts.</p>
+          <div className="bg-[#0B0F17] border border-[#1A2433] rounded-2xl p-6 md:p-8 shadow-sm">
+            <h3 className="font-bold font-sans text-lg mb-4 text-white">Workflow Dependency Engine</h3>
+            <p className="text-xs text-neutral-400 mb-6">Visual relationship mapping of systemic blockers, constraints, and cascading lifecycle impacts.</p>
             
             {intelligenceData.dependencyEngine?.length ? (
             <div className="grid grid-cols-1 gap-8">
               {intelligenceData.dependencyEngine.map((dep: any, idx: number) => (
-                <div key={idx} className="border border-neutral-200 rounded-xl overflow-hidden shadow-sm">
-                  <div className="bg-[#fcfcfc] border-b border-neutral-200 px-5 py-4">
+                <div key={idx} className="border border-[#1A2433] rounded-xl overflow-hidden shadow-sm">
+                  <div className="bg-[#05070A]/50 border-b border-[#1A2433] px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="bg-red-600 border border-red-700 text-white font-mono text-[9px] px-2 py-1 uppercase tracking-widest font-bold rounded">
+                      <div className="bg-red-500/20 border border-red-500/30 text-red-400 font-mono text-[9px] px-2 py-1 uppercase tracking-widest font-bold rounded">
                         Root Cause
                       </div>
-                      <h4 className="font-bold text-sm text-neutral-900 font-sans">{dep.rootCause}</h4>
+                      <h4 className="font-bold text-sm text-white font-sans">{dep.rootCause}</h4>
                     </div>
                   </div>
 
-                  <div className="px-5 py-5 bg-white space-y-6">
+                  <div className="px-5 py-5 bg-[#0B0F17] space-y-6">
                     {/* Cause → Effect → Impact chain */}
                     <div className="space-y-3 relative">
                       <div className="absolute left-6 top-6 bottom-6 w-px bg-red-200 z-0 border-l border-dashed border-red-300"></div>
@@ -128,11 +128,11 @@ export default function ProjectIntelligence({
                               <AlertTriangle className="w-3 h-3 text-amber-600" />
                             </div>
                           </div>
-                          <div className="flex-1 bg-amber-50/60 border border-amber-100 p-4 rounded-xl">
-                            <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-amber-700 block mb-1">
+                          <div className="flex-1 bg-amber-950/20 border border-amber-900/50 p-4 rounded-xl">
+                            <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-amber-400 block mb-1">
                               Cascading Effect
                             </span>
-                            <p className="text-xs font-bold text-neutral-800 leading-snug">{dep.effect}</p>
+                            <p className="text-xs font-bold text-amber-50 leading-snug">{dep.effect}</p>
                           </div>
                         </div>
                       )}
@@ -170,12 +170,12 @@ export default function ProjectIntelligence({
 
         {activeTab === "readiness" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-1">
-                <Cpu className="w-5 h-5 text-neutral-900" />
+            <div className="bg-[#0B0F17] border border-[#1A2433] rounded-2xl p-6 md:p-8 shadow-sm">
+              <div className="flex items-center gap-2 mb-1 text-white">
+                <Cpu className="w-5 h-5" />
                 <h3 className="font-bold font-sans text-lg">Can we use this material yet?</h3>
               </div>
-              <p className="text-xs text-neutral-500 mb-4">Every material must pass 5 checks before it is cleared for use on site.</p>
+              <p className="text-xs text-neutral-400 mb-4">Every material must pass 5 checks before it is cleared for use on site.</p>
               <div className="space-y-4">
                  {intelligenceData.materialReleaseEngine?.map((item: any) => {
                   const checkList = [
@@ -217,20 +217,20 @@ export default function ProjectIntelligence({
                 })}
               </div>
             </div>
-            <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
-                <div className="flex items-center gap-2 mb-4">
-                  <Activity className="w-5 h-5 text-neutral-900" />
+            <div className="bg-[#0B0F17] border border-[#1A2433] rounded-2xl p-6 md:p-8 shadow-sm">
+                <div className="flex items-center gap-2 mb-4 text-white">
+                  <Activity className="w-5 h-5" />
                   <h3 className="font-bold font-sans text-lg">What needs attention</h3>
                 </div>
-                <p className="text-xs text-neutral-500 mb-4">Open issues holding materials back. Clear these to release the materials on the left.</p>
+                <p className="text-xs text-neutral-400 mb-4">Open issues holding materials back. Clear these to release the materials on the left.</p>
                 <div className="space-y-3">
                   {intelligenceData.risks?.map((r: any) => (
-                    <div key={r.id} className="p-3 border border-neutral-100 bg-neutral-50 rounded-lg flex items-center justify-between">
+                    <div key={r.id} className="p-3 border border-[#1A2433] bg-[#05070A]/50 rounded-lg flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <TrendIndicator score={r.score} />
                         <div>
-                          <p className="font-bold text-xs text-neutral-900">{r.name}</p>
-                          <p className="text-[10px] text-neutral-500">{r.action ? `Next step: ${r.action}` : r.category}</p>
+                          <p className="font-bold text-xs text-white">{r.name}</p>
+                          <p className="text-[10px] text-neutral-400">{r.action ? `Next step: ${r.action}` : r.category}</p>
                         </div>
                       </div>
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${r.critical ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
@@ -244,21 +244,21 @@ export default function ProjectIntelligence({
         )}
 
         {activeTab === "supplier-health" && (
-          <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold font-sans text-lg mb-1">Supplier Health — who delivers on time?</h3>
-            <p className="text-xs text-neutral-500 mb-4">One card per supplier. The big word tells you straight away: can you rely on them?</p>
+          <div className="bg-[#0B0F17] border border-[#1A2433] rounded-2xl p-6 md:p-8 shadow-sm">
+            <h3 className="font-bold font-sans text-lg mb-1 text-white">Supplier Health — who delivers on time?</h3>
+            <p className="text-xs text-neutral-400 mb-4">One card per supplier. The big word tells you straight away: can you rely on them?</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {intelligenceData.supplierPerformance?.map((sp: any, i: number) => {
                 const style = sp.risk === "High"
-                  ? { word: "RISKY", dot: "bg-red-500", text: "text-red-700", card: "border-red-200 bg-red-50/40", meaning: "Has caused delays — avoid for time-critical materials." }
+                  ? { word: "RISKY", dot: "bg-red-500", text: "text-red-400", card: "border-red-900/50 bg-red-500/10", meaning: "Has caused delays — avoid for time-critical materials." }
                   : sp.risk === "Medium"
-                  ? { word: "WATCH", dot: "bg-amber-500", text: "text-amber-700", card: "border-amber-200 bg-amber-50/40", meaning: "Mixed record — keep an eye on their deliveries." }
-                  : { word: "RELIABLE", dot: "bg-emerald-500", text: "text-emerald-700", card: "border-emerald-200 bg-emerald-50/40", meaning: "Delivers on time — safe to depend on." };
+                  ? { word: "WATCH", dot: "bg-amber-500", text: "text-amber-400", card: "border-amber-900/50 bg-amber-500/10", meaning: "Mixed record — keep an eye on their deliveries." }
+                  : { word: "RELIABLE", dot: "bg-emerald-500", text: "text-emerald-400", card: "border-emerald-900/50 bg-emerald-500/10", meaning: "Delivers on time — safe to depend on." };
                 return (
                 <div key={i} className={`rounded-2xl border p-5 ${style.card}`}>
                   <div className="flex justify-between items-start gap-2">
-                    <h5 className="text-base font-bold text-neutral-900 font-sans">{sp.name}</h5>
-                    <span className="text-[10px] font-mono bg-white/70 border border-neutral-200 text-neutral-600 px-2 py-1 rounded-lg font-bold whitespace-nowrap">
+                    <h5 className="text-base font-bold text-white font-sans">{sp.name}</h5>
+                    <span className="text-[10px] font-mono bg-[#1A2433] border border-[#2a364a] text-neutral-300 px-2 py-1 rounded-lg font-bold whitespace-nowrap">
                       {sp.reliability === null ? "No deliveries yet" : `${sp.ontimeDeliveries} of ${sp.totalDeliveries} on time`}
                     </span>
                   </div>
@@ -268,8 +268,8 @@ export default function ProjectIntelligence({
                       <span className={`text-2xl font-extrabold tracking-tight ${style.text}`}>{style.word}</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-2xl font-extrabold text-neutral-900">{sp.reliability === null ? "—" : `${sp.reliability}%`}</span>
-                      <span className="block text-[9px] font-mono uppercase tracking-widest text-neutral-400">on-time</span>
+                      <span className="text-2xl font-extrabold text-white">{sp.reliability === null ? "—" : `${sp.reliability}%`}</span>
+                      <span className="block text-[9px] font-mono uppercase tracking-widest text-neutral-500">on-time</span>
                     </div>
                   </div>
                   <p className={`text-xs font-semibold mt-3 ${style.text}`}>{style.meaning}</p>
@@ -284,28 +284,28 @@ export default function ProjectIntelligence({
         )}
 
         {activeTab === "risk-analysis" && (
-          <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold font-sans text-lg mb-1">Risk Analysis — what could go wrong?</h3>
-            <p className="text-xs text-neutral-500 mb-4">Open issues ranked by urgency. The longer the bar, the more urgent it is to fix.</p>
+          <div className="bg-[#0B0F17] border border-[#1A2433] rounded-2xl p-6 md:p-8 shadow-sm">
+            <h3 className="font-bold font-sans text-lg mb-1 text-white">Risk Analysis — what could go wrong?</h3>
+            <p className="text-xs text-neutral-400 mb-4">Open issues ranked by urgency. The longer the bar, the more urgent it is to fix.</p>
             <div className="space-y-4">
                {intelligenceData.risks?.map((risk: any) => (
-                 <div key={risk.id} className="flex flex-col md:flex-row md:items-center gap-4 p-4 border border-neutral-200 rounded-xl">
+                 <div key={risk.id} className="flex flex-col md:flex-row md:items-center gap-4 p-4 border border-[#1A2433] rounded-xl bg-[#05070A]/50">
                    <div className="flex-1">
                      <div className="flex items-center gap-2">
-                       <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded ${risk.critical ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                       <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded ${risk.critical ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'}`}>
                          {risk.critical ? "CRITICAL" : "HIGH"}
                        </span>
-                       <p className="text-sm font-bold text-neutral-900 font-sans">{risk.name}</p>
+                       <p className="text-sm font-bold text-white font-sans">{risk.name}</p>
                      </div>
-                     <p className="text-xs text-neutral-500 mt-1">{risk.action ? `Next step: ${risk.action}` : risk.category}</p>
+                     <p className="text-xs text-neutral-400 mt-1">{risk.action ? `Next step: ${risk.action}` : risk.category}</p>
                    </div>
                    <div className="shrink-0 md:w-56">
-                     <div className="flex justify-between text-[9px] font-mono uppercase tracking-widest text-neutral-400 mb-1">
-                       <span>Urgency</span><span>{risk.score}/100</span>
-                     </div>
-                     <div className="w-full bg-neutral-100 rounded-full h-2.5 overflow-hidden">
-                       <div className={`h-2.5 rounded-full ${risk.critical ? "bg-red-500" : "bg-amber-500"}`} style={{ width: `${risk.score}%` }}></div>
-                     </div>
+                      <div className="flex justify-between text-[9px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
+                        <span>Urgency</span><span>{risk.score}/100</span>
+                      </div>
+                      <div className="w-full bg-[#1A2433] rounded-full h-2.5 overflow-hidden">
+                        <div className={`h-2.5 rounded-full ${risk.critical ? "bg-red-500" : "bg-amber-500"}`} style={{ width: `${risk.score}%` }}></div>
+                      </div>
                    </div>
                  </div>
                ))}
@@ -314,29 +314,29 @@ export default function ProjectIntelligence({
         )}
 
         {activeTab === "delivery" && (
-           <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
-             <h3 className="font-bold font-sans text-lg mb-4">Logistics & Delivery Intelligence</h3>
+           <div className="bg-[#0B0F17] border border-[#1A2433] rounded-2xl p-6 md:p-8 shadow-sm">
+             <h3 className="font-bold font-sans text-lg mb-4 text-white">Logistics & Delivery Intelligence</h3>
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-              <div className="bg-neutral-50 border border-neutral-150 rounded-xl p-4">
+              <div className="bg-[#05070A]/50 border border-[#1A2433] rounded-xl p-4">
                 <span className="block text-[9px] font-mono uppercase tracking-widest text-neutral-400 font-bold">Total Deliveries</span>
-                <strong className="text-2xl text-neutral-900">{intelligenceData.deliveryIntelligence?.total ?? 0}</strong>
+                <strong className="text-2xl text-white">{intelligenceData.deliveryIntelligence?.total ?? 0}</strong>
               </div>
-              <div className="bg-neutral-50 border border-neutral-150 rounded-xl p-4">
+              <div className="bg-[#05070A]/50 border border-[#1A2433] rounded-xl p-4">
                 <span className="block text-[9px] font-mono uppercase tracking-widest text-neutral-400 font-bold">On Time</span>
-                <strong className="text-2xl text-emerald-700">{intelligenceData.deliveryIntelligence?.onTime ?? 0}</strong>
+                <strong className="text-2xl text-emerald-400">{intelligenceData.deliveryIntelligence?.onTime ?? 0}</strong>
               </div>
-              <div className="bg-neutral-50 border border-neutral-150 rounded-xl p-4">
+              <div className="bg-[#05070A]/50 border border-[#1A2433] rounded-xl p-4">
                 <span className="block text-[9px] font-mono uppercase tracking-widest text-neutral-400 font-bold">Delayed</span>
-                <strong className="text-2xl text-red-700">{intelligenceData.deliveryIntelligence?.delayed ?? 0}</strong>
+                <strong className="text-2xl text-red-400">{intelligenceData.deliveryIntelligence?.delayed ?? 0}</strong>
               </div>
              </div>
              {intelligenceData.deliveryIntelligence?.delayedActions?.length ? (
               <div className="space-y-3">
                 {intelligenceData.deliveryIntelligence.delayedActions.map((action: any) => (
-                  <div key={action.id} className="border border-amber-200 bg-amber-50 rounded-xl p-4">
-                    <p className="text-sm font-bold text-neutral-900">{action.issue}</p>
-                    <p className="text-xs text-neutral-600 mt-1">Material: {action.material_name}</p>
-                    <p className="text-xs text-neutral-600 mt-1">Action: {action.action}</p>
+                  <div key={action.id} className="border border-red-900/50 bg-red-500/10 rounded-xl p-4">
+                    <p className="text-sm font-bold text-red-100">{action.issue}</p>
+                    <p className="text-xs text-red-200/70 mt-1">Material: {action.material_name}</p>
+                    <p className="text-xs text-red-200/70 mt-1">Action: {action.action}</p>
                   </div>
                 ))}
               </div>

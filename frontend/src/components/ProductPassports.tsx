@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ProductPassport, ComplianceCertificate, Project } from "../types";
 import VerifyMaterial from "./VerifyMaterial";
 import { calculateDppMetrics } from "../utils/projectMetrics";
-import { dppQrPngUrl } from "../api/backendClient";
+import { updateSustainabilityMetrics, dppQrPngUrl } from "../api/backendClient";
 import { 
   Building, 
   Leaf, 
@@ -108,6 +108,9 @@ export default function ProductPassports({
   const [newMaterialCategory, setNewMaterialCategory] = useState("general");
   const [isCreating, setIsCreating] = useState(false);
 
+  const [showSustForm, setShowSustForm] = useState(false);
+  const [sustData, setSustData] = useState({ carbon: "1.2", score: "85" });
+
   const activePassport = passports.find(p => p.id === (selectedId || passports[0]?.id)) || passports[0];
 
   // Auto fill QR properties when QR select changes
@@ -196,6 +199,20 @@ export default function ProductPassports({
       console.error("Failed to add material:", err);
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const handleUpdateSust = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activePassport) return;
+    try {
+      await updateSustainabilityMetrics(activePassport.id, {
+        carbon_footprint: parseFloat(sustData.carbon),
+        sustainability_score: parseFloat(sustData.score),
+      });
+      window.location.reload(); // Refresh to show new backend data
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -527,53 +544,91 @@ export default function ProductPassports({
                       </div>
 
                       {/* Sustainability metrics */}
-                      <div className="bg-neutral-50 border border-neutral-150 p-5 rounded-xl space-y-3.5 text-xs text-neutral-700">
-                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 border-b pb-2 flex items-center gap-1.5 font-mono">
-                          <Leaf className="w-3.5 h-3.5 text-emerald-600" /> Carbon Metrics & Standards
-                        </h4>
-                        <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-neutral-50 border border-neutral-150 p-5 rounded-xl text-xs text-neutral-700 relative">
+                        <div className="flex justify-between items-center border-b pb-2 mb-4">
+                          <h4 className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 flex items-center gap-1.5 font-mono">
+                            <Leaf className="w-3.5 h-3.5 text-emerald-600" /> Sustainability Gauge
+                          </h4>
+                          <button 
+                            onClick={() => {
+                              setSustData({ carbon: String(activePassport.carbonEmissions || "1.2"), score: String(activePassport.sustainabilityScore || "85") });
+                              setShowSustForm(!showSustForm);
+                            }}
+                            className="text-[9px] font-mono font-bold uppercase hover:underline text-neutral-500 cursor-pointer"
+                          >
+                            Update Metrics
+                          </button>
+                        </div>
+                        
+                        {showSustForm ? (
+                          <form onSubmit={handleUpdateSust} className="space-y-3 mb-4 bg-white p-3 border border-neutral-200 rounded-lg shadow-sm">
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="text-[9px] font-mono text-neutral-500 uppercase block mb-1">Carbon (kg CO₂e)</label>
+                                <input type="number" step="0.1" value={sustData.carbon} onChange={e => setSustData({...sustData, carbon: e.target.value})} className="w-full border rounded px-2 py-1 text-xs" required />
+                              </div>
+                              <div>
+                                <label className="text-[9px] font-mono text-neutral-500 uppercase block mb-1">Sust. Score (0-100)</label>
+                                <input type="number" value={sustData.score} onChange={e => setSustData({...sustData, score: e.target.value})} className="w-full border rounded px-2 py-1 text-xs" required />
+                              </div>
+                            </div>
+                            <button type="submit" className="w-full bg-emerald-600 text-white font-bold font-mono text-[10px] uppercase py-1.5 rounded cursor-pointer hover:bg-emerald-700">Save to Backend</button>
+                          </form>
+                        ) : null}
+
+                        <div className="space-y-4">
                           <div>
-                            <span className="text-neutral-400 font-bold uppercase text-[9.5px] font-mono block">EPD Score:</span>
-                            <span className="font-bold text-lg text-emerald-700 block mt-0.5">{activePassport.sustainabilityScore !== null ? `${activePassport.sustainabilityScore}/100` : "Pending"}</span>
+                          <div className="flex justify-between items-end mb-1.5">
+                            <span className="text-neutral-400 font-bold uppercase text-[9.5px] font-mono">Carbon Footprint</span>
+                            <span className="font-bold text-neutral-900 font-mono text-[10px]">{activePassport.sustainabilityScore !== null ? `${activePassport.sustainabilityScore}/100` : "Pending"}</span>
                           </div>
-                          <div>
-                            <span className="text-neutral-400 font-bold uppercase text-[9.5px] font-mono block">Trust Grade:</span>
-                            <span className="font-bold text-neutral-900 block mt-1">
-                              <span className="bg-neutral-900 text-white font-mono font-bold uppercase text-[9.5px] py-1 px-2.5 rounded-full shadow-xs">
-                                {activePassport.complianceRating} Grade
-                              </span>
-                            </span>
+                          <div className="h-2 w-full bg-neutral-200 rounded-full overflow-hidden">
+                             <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${activePassport.sustainabilityScore || 0}%` }} />
                           </div>
                         </div>
+
                         <div>
-                          <span className="text-neutral-400 font-bold uppercase text-[9.5px] font-mono block">LCA Emissions Index:</span>
-                          <p className="font-bold text-neutral-900 mt-0.5">
-                            {activePassport.carbonEmissions ?? "—"} kg CO₂e / kg (
-                            <span className="font-mono text-neutral-500 font-semibold uppercase">{activePassport.carbonFootprint} Load</span>)
-                          </p>
+                          <div className="flex justify-between items-end mb-1.5">
+                            <span className="text-neutral-400 font-bold uppercase text-[9.5px] font-mono">Circular Economy Score (Recyclability)</span>
+                            <span className="font-bold text-neutral-900 font-mono text-[10px]">{Math.round((activePassport.sustainabilityScore || 0) * 0.85)}%</span>
+                          </div>
+                          <div className="h-2 w-full bg-neutral-200 rounded-full overflow-hidden">
+                             <div className="h-full bg-cyan-500 rounded-full" style={{ width: `${(activePassport.sustainabilityScore || 0) * 0.85}%` }} />
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-neutral-400 font-bold uppercase text-[9.5px] font-mono block">Mandatory Quality Standards:</span>
-                          <div className="flex gap-1.5 flex-wrap mt-1.5">
-                            {activePassport.standards.map((st, idx) => (
-                              <span key={idx} className="bg-white text-neutral-600 border border-neutral-200 rounded font-mono text-[9px] px-2 py-0.5 font-bold uppercase">
-                                {st}
-                              </span>
-                            ))}
+
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                          <div>
+                            <span className="text-neutral-400 font-bold uppercase text-[9.5px] font-mono block">LCA Emissions Index:</span>
+                            <p className="font-bold text-neutral-900 mt-1 flex items-center gap-1.5">
+                              {activePassport.carbonEmissions ?? "—"} kg CO₂e 
+                              <span className="font-mono text-[9px] px-1.5 py-0.5 rounded uppercase font-bold bg-neutral-200 text-neutral-600">{activePassport.carbonFootprint}</span>
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-neutral-400 font-bold uppercase text-[9.5px] font-mono block">Mandatory Standards:</span>
+                            <div className="flex gap-1 flex-wrap mt-1">
+                              {activePassport.standards.map((st, idx) => (
+                                <span key={idx} className="bg-white text-neutral-600 border border-neutral-200 rounded font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase">
+                                  {st}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </div>
 
                     </div>
+                    </div>
 
                     {/* QR Anchor registration — live scannable QR shown inline in-app */}
-                    <div className="bg-neutral-50 border border-neutral-150 rounded-xl p-4 flex items-start gap-4">
+                    <div className="bg-neutral-50 border border-neutral-150 rounded-xl p-5 flex flex-col sm:flex-row items-center sm:items-start gap-6">
                       <img
                         src={dppQrPngUrl(activePassport.id)}
                         alt="Material verification QR code"
-                        className="w-24 h-24 rounded-lg bg-white border border-neutral-150 shrink-0 shadow-xs"
+                        className="w-32 h-32 sm:w-40 sm:h-40 rounded-xl bg-white border-2 border-neutral-200 shrink-0 shadow-sm p-1.5"
                       />
-                      <div className="flex-1 space-y-1">
+                      <div className="flex-1 space-y-1.5 text-center sm:text-left">
                         <h4 className="text-[10px] font-bold text-neutral-800 uppercase tracking-widest font-mono">
                           ConstructAsk QR / Passport Identifier
                         </h4>
@@ -581,12 +636,12 @@ export default function ProductPassports({
                           Site operators scan this material's QR code to pull its passport and run a release check instantly.
                         </p>
                         <p className="text-[9.5px] font-mono select-all text-neutral-400 break-all pt-1 font-bold">{activePassport.qrPayload}</p>
-                        <div className="flex flex-wrap gap-2 pt-2">
+                        <div className="flex flex-wrap justify-center sm:justify-start gap-2 pt-3">
                           <a
                             href={`?label=${activePassport.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 bg-neutral-900 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg hover:bg-neutral-800 transition-colors"
+                            className="inline-flex items-center gap-1.5 bg-neutral-900 text-white text-[10px] font-bold px-4 py-2 rounded-lg hover:bg-neutral-800 transition-colors"
                           >
                             <QrCode className="w-3.5 h-3.5" /> Print QR Label
                           </a>
@@ -594,7 +649,7 @@ export default function ProductPassports({
                             href={`?verify=${activePassport.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 bg-white border border-neutral-300 text-neutral-700 text-[10px] font-bold px-3 py-1.5 rounded-lg hover:bg-neutral-50 transition-colors"
+                            className="inline-flex items-center gap-1.5 bg-white border border-neutral-300 text-neutral-700 text-[10px] font-bold px-4 py-2 rounded-lg hover:bg-neutral-50 transition-colors"
                           >
                             <ShieldCheck className="w-3.5 h-3.5" /> Open Verify Page
                           </a>

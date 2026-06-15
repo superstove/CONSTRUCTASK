@@ -2,11 +2,20 @@ services:
   - type: web
     name: constructask-api
     runtime: python
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: python seed_data.py && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+    region: singapore
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
       - key: DATABASE_URL
         value: sqlite:///./constructask.db
+      - key: ENVIRONMENT
+        value: production
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://constructask.vercel.app,https://constructask-superstove.vercel.app
+      - key: DPP_ISSUER_ID
+        value: anton-steel-works
+      - key: DPP_ISSUER_NAME
+        value: Anton Steel Works

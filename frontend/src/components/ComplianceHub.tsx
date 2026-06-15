@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ComplianceCertificate } from "../types";
+import { ComplianceCertificate, AuditBlock } from "../types";
 import { FrontendApproval } from "../api/backendClient";
 import { 
   AlertTriangle, 
@@ -14,7 +14,8 @@ import {
   CheckCircle,
   FileCheck2,
   Trash,
-  Plus
+  Plus,
+  X
 } from "lucide-react";
 
 import ApprovalsWorkflow, { ApprovalGate } from "./ApprovalsWorkflow";
@@ -23,6 +24,7 @@ interface ComplianceHubProps {
   certificates: ComplianceCertificate[];
   approvals: FrontendApproval[];
   projectName?: string;
+  auditTrail?: AuditBlock[];
   onUpdateApproval: (id: number, status: "approved" | "rejected" | "pending") => Promise<void>;
   onNavigateToTab: (tab: any, actionQuery?: string) => void;
 }
@@ -44,11 +46,14 @@ function mapApprovalToGate(approval: FrontendApproval): ApprovalGate {
   };
 }
 
-export default function ComplianceHub({ certificates, approvals, projectName, onUpdateApproval, onNavigateToTab }: ComplianceHubProps) {
+export default function ComplianceHub({ certificates, approvals, projectName, auditTrail, onUpdateApproval, onNavigateToTab }: ComplianceHubProps) {
   // Sub-tabs management
   const [activeSubTab, setActiveSubTab] = useState<"certificates" | "approvals" | "reviews" | "issues">("certificates");
   
   const [gates, setGates] = useState<ApprovalGate[]>([]);
+  const [selectedCertId, setSelectedCertId] = useState<string | null>(null);
+
+  const selectedCert = certificates.find(c => c.id === selectedCertId);
 
   useEffect(() => {
     setGates(approvals.map(mapApprovalToGate));
@@ -84,7 +89,7 @@ export default function ComplianceHub({ certificates, approvals, projectName, on
   const hasEscalation = issueCerts.length > 0 || pendingGates.length > 0;
 
   return (
-    <div id="compliance-tab" className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8 bg-neutral-50 min-h-screen transition-all">
+    <div id="compliance-tab" className="p-4 sm:p-6 lg:p-8 w-full space-y-6 sm:space-y-8 bg-neutral-50 min-h-screen transition-all">
       
       {/* Floating toast notification */}
       {activeNotification && (
@@ -114,7 +119,7 @@ export default function ComplianceHub({ certificates, approvals, projectName, on
       </section>
 
       {/* 2. CONTEXT PANEL */}
-      <section id="compliance-context-panel" className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs grid grid-cols-1 md:grid-cols-4 gap-6">
+      <section id="compliance-context-panel" className="bg-white border border-neutral-200 rounded-2xl p-6 md:p-8 shadow-xs grid grid-cols-1 md:grid-cols-4 gap-6">
         <div>
           <span className="text-[9px] font-mono text-[#a3a3a3] font-bold block uppercase tracking-wider">PROJECT LEVEL</span>
           <p className="text-xs font-bold text-neutral-900 mt-1.5 truncate">{projectName || "Selected project"}</p>
@@ -195,13 +200,13 @@ export default function ComplianceHub({ certificates, approvals, projectName, on
         {activeSubTab === "certificates" && (
           <div className="space-y-6 animate-fadeIn">
             {/* Filter query search */}
-            <div className="bg-white border p-4 rounded-xl shadow-xs">
+            <div className="bg-[#0B0F17] border border-[#1A2433] p-4 rounded-xl shadow-xs">
               <input 
                 type="text"
                 placeholder="Search certificate registry by testing body, rule name or ID..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-neutral-50 px-4 py-2 border border-neutral-200 focus:bg-white rounded-lg text-xs"
+                className="w-full bg-[#05070A] text-white px-4 py-2 border border-[#1A2433] focus:border-cyan-500/50 rounded-lg text-xs outline-none transition-colors"
               />
             </div>
 
@@ -211,7 +216,7 @@ export default function ComplianceHub({ certificates, approvals, projectName, on
                 const IsActive = cert.status === "Active";
                 const IsExpiring = cert.status === "Expiring";
                 return (
-                  <div key={cert.id} className="premium-card rounded-2xl p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+                  <div key={cert.id} className="premium-card rounded-2xl p-6 md:p-8 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
                     <div className="space-y-4">
                       
                       <div className="flex items-start justify-between gap-4">
@@ -230,20 +235,20 @@ export default function ComplianceHub({ certificates, approvals, projectName, on
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 p-3.5 bg-neutral-100/55 rounded-xl border">
+                      <div className="grid grid-cols-2 gap-3 p-3.5 bg-[#05070A]/50 rounded-xl border border-[#1A2433]">
                         <div>
                           <span className="text-[9px] font-mono premium-text-secondary font-bold block uppercase">Auditing Body</span>
-                          <span className="font-bold text-neutral-800 dark:text-neutral-200 text-xs mt-0.5">{cert.issuer}</span>
+                          <span className="font-bold text-white text-xs mt-0.5">{cert.issuer}</span>
                         </div>
                         <div>
                           <span className="text-[9px] font-mono premium-text-secondary font-bold block uppercase">Date of Expiration:</span>
-                          <span className="font-bold text-neutral-800 dark:text-neutral-200 text-xs mt-0.5 font-mono">{new Date(cert.expiresAt).toLocaleDateString()}</span>
+                          <span className="font-bold text-white text-xs mt-0.5 font-mono">{new Date(cert.expiresAt).toLocaleDateString()}</span>
                         </div>
                       </div>
 
                       <div className="text-xs space-y-1">
                         <span className="premium-text-secondary font-mono tracking-wide text-[9.5px] font-bold uppercase">Standards scope boundaries:</span>
-                        <p className="premium-text-secondary italic leading-relaxed bg-neutral-100/35 border p-3 rounded-lg font-light">
+                        <p className="text-white italic leading-relaxed bg-[#05070A]/50 border border-[#1A2433] p-3 rounded-lg font-light">
                           "{cert.scope}"
                         </p>
                       </div>
@@ -252,14 +257,13 @@ export default function ComplianceHub({ certificates, approvals, projectName, on
 
                     <div className="flex items-center justify-between border-t border-neutral-100 mt-5 pt-4">
                       <span className="text-[9px] font-mono premium-text-secondary font-bold">BACKEND CERTIFICATE RECORD</span>
-                      <a 
-                        href="#" 
-                        onClick={(e) => { e.preventDefault(); triggerAuditDownload(cert.id); }}
-                        className="text-xs text-black dark:text-white hover:underline font-bold flex items-center gap-1"
+                      <button 
+                        onClick={(e) => { e.preventDefault(); setSelectedCertId(cert.id); }}
+                        className="text-xs text-black dark:text-white hover:underline font-bold flex items-center gap-1 cursor-pointer"
                       >
                         <FileText className="w-3.5 h-3.5 shrink-0" />
                         <span>Review certificate details</span>
-                      </a>
+                      </button>
                     </div>
                   </div>
                 );
@@ -289,7 +293,7 @@ export default function ComplianceHub({ certificates, approvals, projectName, on
 
         {/* ─── SUB-TAB 3: COMPLIANCE REVIEWS ─── */}
         {activeSubTab === "reviews" && (
-          <div className="bg-white border rounded-2xl p-6 shadow-xs animate-fadeIn">
+          <div className="bg-white border rounded-2xl p-6 md:p-8 shadow-xs animate-fadeIn">
             <h3 className="text-xs font-mono font-bold uppercase text-[#a3a3a3] border-b pb-3 block">
               Active Compliance Reviews
             </h3>
@@ -301,7 +305,7 @@ export default function ComplianceHub({ certificates, approvals, projectName, on
 
         {/* ─── SUB-TAB 4: ISSUES & EXCEPTIONS ─── */}
         {activeSubTab === "issues" && (
-          <div className="bg-white border rounded-2xl p-6 shadow-xs animate-fadeIn">
+          <div className="bg-white border rounded-2xl p-6 md:p-8 shadow-xs animate-fadeIn">
             <h3 className="text-xs font-mono font-bold uppercase text-[#a3a3a3] border-b pb-3 block">
                Exceptions Engine Database
             </h3>
@@ -312,6 +316,117 @@ export default function ComplianceHub({ certificates, approvals, projectName, on
         )}
 
       </div>
+
+      {/* Document Viewer Drawer */}
+      {selectedCert && (
+        <div className="fixed inset-0 z-[100] flex justify-end bg-black/40 backdrop-blur-sm animate-fadeIn">
+          {/* Overlay click to close */}
+          <div className="absolute inset-0" onClick={() => setSelectedCertId(null)} />
+          
+          <div className="w-full max-w-xl bg-white h-full shadow-2xl flex flex-col relative z-10 animate-slideInRight overflow-hidden border-l border-neutral-200">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-neutral-100 bg-neutral-50">
+              <div>
+                <h3 className="font-bold text-xl font-sans text-neutral-900">{selectedCert.name}</h3>
+                <p className="text-[10.5px] text-neutral-500 font-mono mt-1 font-bold tracking-widest uppercase">ID: {selectedCert.id}</p>
+              </div>
+              <button onClick={() => setSelectedCertId(null)} className="p-2 hover:bg-neutral-200 rounded-full transition-colors cursor-pointer">
+                <X className="w-5 h-5 text-neutral-500" />
+              </button>
+            </div>
+
+            {/* Drawer Body */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-white">
+              
+              {/* PDF Preview Mockup */}
+              <div className="bg-neutral-100 border border-neutral-200 rounded-xl aspect-[3/4] flex flex-col items-center justify-center relative overflow-hidden group shadow-inner">
+                <FileText className="w-16 h-16 text-neutral-300 mb-4" />
+                <p className="text-xs font-bold text-neutral-400 font-mono uppercase tracking-widest">Encrypted PDF Document</p>
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                  <button className="bg-white text-black px-6 py-3 rounded-lg font-bold font-mono text-xs uppercase tracking-widest shadow-xl flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all cursor-pointer hover:scale-105">
+                    <Lock className="w-4 h-4" /> Unlock & View
+                  </button>
+                </div>
+              </div>
+
+              {/* Metadata */}
+              <div>
+                <h4 className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest border-b border-neutral-150 pb-2 mb-4 flex items-center gap-2">
+                  <Activity className="w-3.5 h-3.5" /> Certificate Metadata
+                </h4>
+                <div className="grid grid-cols-2 gap-y-6 gap-x-4 bg-neutral-50 border border-neutral-150 rounded-xl p-5">
+                  <div>
+                    <span className="text-[9.5px] text-neutral-400 font-mono font-bold uppercase block mb-1">Status</span>
+                    <span className={`inline-block px-2.5 py-1 text-[10px] font-bold font-mono uppercase rounded-md border ${
+                      selectedCert.status === "Active" 
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                        : "bg-amber-50 text-amber-700 border-amber-200"
+                    }`}>
+                      {selectedCert.status}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[9.5px] text-neutral-400 font-mono font-bold uppercase block mb-1">Issuer / Authority</span>
+                    <span className="font-bold text-neutral-900 text-sm flex items-center gap-1.5">
+                      <ShieldAlert className="w-3.5 h-3.5 text-blue-500" />
+                      {selectedCert.issuer}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[9.5px] text-neutral-400 font-mono font-bold uppercase block mb-1">Issue Date</span>
+                    <span className="font-bold text-neutral-900 font-mono text-xs">{new Date(selectedCert.issuedAt).toLocaleDateString()}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9.5px] text-neutral-400 font-mono font-bold uppercase block mb-1">Expiry Date</span>
+                    <span className="font-bold text-neutral-900 font-mono text-xs">{new Date(selectedCert.expiresAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Audit History */}
+              <div>
+                <h4 className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest border-b border-neutral-150 pb-2 mb-4 flex items-center gap-2">
+                  <Lock className="w-3.5 h-3.5" /> Blockchain Audit Lineage
+                </h4>
+                <div className="space-y-5 relative before:absolute before:top-2 before:bottom-2 before:left-[11px] before:w-[2px] before:bg-neutral-200 ml-2 mt-4">
+                  {auditTrail 
+                    ? auditTrail
+                        .filter(block => selectedCert.materialId && block.passportId === selectedCert.materialId)
+                        .map((block, i) => (
+                          <div key={i} className="flex gap-5 relative z-10 group">
+                            <div className={`w-6 h-6 rounded-full border-4 border-white shadow-sm shrink-0 mt-0.5 group-hover:scale-110 transition-transform ${
+                              block.status === "Flagged" ? "bg-red-500" : "bg-emerald-500"
+                            }`} />
+                            <div>
+                              <p className="text-sm font-bold text-neutral-900">{block.action.replace(/_/g, " ")}</p>
+                              <p className="text-xs text-neutral-500 mt-1 leading-relaxed">{block.details}</p>
+                              <p className="text-[10px] font-mono text-neutral-400 mt-2 bg-neutral-50 border border-neutral-150 inline-block px-2 py-0.5 rounded font-bold">
+                                {new Date(block.timestamp).toLocaleString()} by {block.operator}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                    : (
+                      <div className="text-xs text-neutral-400 font-mono">No audit trail logs available for this certificate.</div>
+                    )
+                  }
+                  
+                  {/* Genesis Block */}
+                  <div className="flex gap-5 relative z-10 group">
+                    <div className="w-6 h-6 rounded-full bg-neutral-300 border-4 border-white shadow-sm shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                    <div>
+                      <p className="text-sm font-bold text-neutral-900">Certificate Ingested</p>
+                      <p className="text-xs text-neutral-500 mt-1 leading-relaxed">Raw certificate document ingested into Compliance Hub standard intake.</p>
+                      <p className="text-[10px] font-mono text-neutral-400 mt-2 bg-neutral-50 border border-neutral-150 inline-block px-2 py-0.5 rounded font-bold">{new Date(selectedCert.issuedAt).toLocaleString()}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 4. AI INSIGHT CARD */}
       <section id="compliance-ai-insight" className="bg-neutral-50 border border-neutral-255 p-5 rounded-2xl shadow-xs space-y-3">
@@ -327,7 +442,7 @@ export default function ComplianceHub({ certificates, approvals, projectName, on
       </section>
 
       {/* 5. EVIDENCE SECTION */}
-      <section id="compliance-evidence" className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-xs space-y-4">
+      <section id="compliance-evidence" className="bg-white border border-neutral-200 rounded-2xl p-6 md:p-8 shadow-xs space-y-4">
         <h3 className="text-xs font-bold uppercase tracking-widest text-[#a3a3a3] border-b pb-3 font-mono">
           Connected Compliance Evidence
         </h3>
@@ -353,7 +468,7 @@ export default function ComplianceHub({ certificates, approvals, projectName, on
       </section>
 
       {/* 6. ACTION RECOMMENDATIONS */}
-      <section id="compliance-actions" className="bg-[#1c1c1c] text-white border border-neutral-900 rounded-2xl p-6 shadow-xs space-y-4">
+      <section id="compliance-actions" className="bg-[#1c1c1c] text-white border border-neutral-900 rounded-2xl p-6 md:p-8 shadow-xs space-y-4">
         <div className="flex items-center justify-between border-b border-neutral-850 pb-3">
           <h4 className="text-[10px] font-mono font-bold uppercase text-neutral-450 tracking-widest">
             COMPLIANCE FOLLOW-UP

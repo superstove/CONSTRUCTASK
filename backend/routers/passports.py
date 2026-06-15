@@ -220,6 +220,38 @@ def create_passport(body: PassportCreate, db: Session = Depends(get_db)):
 
     return passport
 
+class SustainabilityUpdate(BaseModel):
+    carbon_footprint: float
+    sustainability_score: float
+
+@router.put("/material/{material_id}/sustainability", response_model=PassportOut, dependencies=[Depends(require_role("Admin", "Project Manager", "Sustainability Officer"))])
+def update_sustainability_metrics(material_id: int, payload: SustainabilityUpdate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    """Update sustainability score and carbon footprint for a material's passport."""
+    passport = db.query(ProductPassport).filter(ProductPassport.material_id == material_id).first()
+    if not passport:
+        raise HTTPException(status_code=404, detail="Passport not found for this material")
+        
+    material = db.query(Material).filter(Material.id == material_id).first()
+
+    passport.carbon_footprint = payload.carbon_footprint
+    passport.carbon_score = payload.carbon_footprint  # Keep them synced
+    passport.sustainability_score = payload.sustainability_score
+
+    from utils import record_audit_trail
+    record_audit_trail(
+        db=db,
+        action="SUSTAINABILITY_UPDATED",
+        performed_by_name=current_user.name if hasattr(current_user, "name") else "System",
+        details=f"Carbon footprint updated to {payload.carbon_footprint} and Sustainability Score to {payload.sustainability_score}",
+        material_id=material_id,
+        project_id=material.project_id if material else 1,
+        result="Success"
+    )
+
+    db.commit()
+    db.refresh(passport)
+    return passport
+
 
 @router.put("/{passport_id}", response_model=PassportOut, dependencies=[Depends(require_role("Admin", "Project Manager", "QA Auditor", "Evidence Operator"))])
 def update_passport(passport_id: int, body: PassportUpdate, db: Session = Depends(get_db)):

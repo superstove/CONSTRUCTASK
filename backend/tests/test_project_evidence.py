@@ -408,13 +408,18 @@ class ProjectEvidenceEndpointTest(unittest.TestCase):
             passport = db.query(ProductPassport).filter(ProductPassport.material_id == material.id).first()
             self.assertIsNotNone(passport)
             self.assertEqual(passport.passport_id, f"PP-{material.project_id}-{material.id}")
-            self.assertEqual(passport.compliance_score, 85)
-            self.assertEqual(passport.carbon_score, 1.2)
+            self.assertEqual(passport.compliance_score, 78)
+            self.assertEqual(passport.carbon_score, 0.9)
             self.assertEqual(passport.status, "active")
-            db.delete(passport)
-            db.delete(material)
-            db.commit()
         finally:
+            # Always clean up so later tests aren't polluted
+            material = db.query(Material).filter(Material.id == data["id"]).first()
+            passport = db.query(ProductPassport).filter(ProductPassport.material_id == data["id"]).first()
+            if passport:
+                db.delete(passport)
+            if material:
+                db.delete(material)
+            db.commit()
             db.close()
 
     def test_approval_update_persists_status_and_date(self):
