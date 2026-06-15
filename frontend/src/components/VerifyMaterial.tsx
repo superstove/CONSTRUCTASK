@@ -114,6 +114,10 @@ export default function VerifyMaterial({
   };
 
   const selectedPassport = passports.find(p => p.id === selectedPassportId);
+  // Real cert-expiry check for the selected material (no hardcoding).
+  const selectedCertExpired = !!selectedPassport && certificates.some(
+    (c) => c.scope?.includes(selectedPassport.name) && String(c.status).toLowerCase() === "expired"
+  );
 
   const handleCheckRelease = async () => {
     if (!selectedPassportId) {
@@ -532,25 +536,28 @@ export default function VerifyMaterial({
 
                 {/* Pre-flight Checks checklist mimicking the Decision Engine reqs */}
                 <div className="bg-neutral-50 border border-neutral-150 p-4 rounded-xl text-xs space-y-3">
-                  <span className="text-[10px] text-neutral-400 font-bold uppercase block mb-1">Engine Pre-flight Checks</span>
+                  <span className="text-[10px] text-neutral-400 font-bold uppercase block mb-1">Material Record Checks</span>
                   <div className="space-y-2 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-600">Certificates Validity</span>
-                      {selectedPassport.name.includes("Anchor Rod") ? <span className="text-red-600 font-bold font-mono">EXPIRED</span> : <span className="text-emerald-600 font-bold font-mono">VERIFIED</span>}
+                      <span className="text-neutral-600">Certificate Validity</span>
+                      {selectedCertExpired
+                        ? <span className="text-red-600 font-bold font-mono">EXPIRED</span>
+                        : <span className="text-emerald-600 font-bold font-mono">VALID</span>}
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-600">Approvals Gate</span>
-                      <span className="text-emerald-600 font-bold font-mono">PASSED</span>
+                      <span className="text-neutral-600">Compliance Rating</span>
+                      <span className="text-neutral-800 font-bold font-mono">{selectedPassport.complianceRating || "—"}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-600">Compliance Tier</span>
-                      <span className="text-emerald-600 font-bold font-mono">A-GRADE</span>
+                      <span className="text-neutral-600">Current Stage</span>
+                      <span className="text-neutral-800 font-bold font-mono uppercase">{selectedPassport.currentStage || "—"}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-600">Supplier Status</span>
-                      <span className="text-emerald-600 font-bold font-mono">TRUSTED</span>
+                      <span className="text-neutral-600">Standards Recorded</span>
+                      <span className="text-neutral-800 font-bold font-mono">{selectedPassport.standards?.length ?? 0}</span>
                     </div>
                   </div>
+                  <p className="text-[9px] text-neutral-400 leading-snug pt-1">Authoritative verdict comes from the live release decision below.</p>
                 </div>
 
                 <div className="bg-neutral-550 border border-neutral-150 p-3.5 rounded-xl text-xs space-y-2 leading-relaxed">

@@ -15,7 +15,25 @@ from intelligence import (
     delivery_status,
     plural,
 )
-from models import Approval, AuditTrail, Certificate, Delivery, Material, Project
+from models import Approval, AuditTrail, Certificate, Delivery, Material, Project, User
+
+# The demo account sees the shared seed data (projects with no owner). Everyone
+# else sees only the projects they own.
+DEMO_EMAIL = "demo@constructask.dev"
+
+
+def _get_owned_project(project_id: int, db: Session, current_user: User) -> Project:
+    """Load a project only if the caller may see it; otherwise 404 (don't leak existence)."""
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    if current_user.email == DEMO_EMAIL:
+        allowed = project.owner_id is None or project.owner_id == current_user.id
+    else:
+        allowed = project.owner_id == current_user.id
+    if not allowed:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project
 from schemas import (
     ActionQueueOut,
     DashboardOut,
@@ -342,20 +360,25 @@ def _scan_warning_actions(project_id: int, db: Session) -> list[dict]:
 
 
 @router.get("/", response_model=list[ProjectOut])
-def list_projects(db: Session = Depends(get_db)):
-    return [_project_out(project, db) for project in db.query(Project).all()]
+def list_projects(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Project)
+    if current_user.email == DEMO_EMAIL:
+        # Demo account: the shared seed data plus anything it created.
+        query = query.filter(or_(Project.owner_id.is_(None), Project.owner_id == current_user.id))
+    else:
+        # Real (Google) users: only their own workspace.
+        query = query.filter(Project.owner_id == current_user.id)
+    return [_project_out(project, db) for project in query.all()]
 
 
 @router.get("/{project_id}", response_model=ProjectOut)
-def get_project(project_id: int, db: Session = Depends(get_db)):
-    project = db.query(Project).filter(Project.id == project_id).first()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+def get_project(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    project = _get_owned_project(project_id, db, current_user)
     return _project_out(project, db)
 
 
 @router.post("/", response_model=ProjectOut, dependencies=[Depends(require_role("Admin", "Project Manager"))])
-def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
+def create_project(project: ProjectCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     new_project = Project(
         name=project.name,
         location=project.location,
@@ -363,6 +386,7 @@ def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
         end_date=project.end_date,
         status=project.status,
         risk_score=project.risk_score,
+        owner_id=current_user.id,
     )
     db.add(new_project)
     db.commit()
@@ -371,10 +395,8 @@ def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/{project_id}/dashboard", response_model=DashboardOut)
-def get_dashboard(project_id: int, db: Session = Depends(get_db)):
-    project = db.query(Project).filter(Project.id == project_id).first()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+def get_dashboard(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    project = _get_owned_project(project_id, db, current_user)
 
     today = date.today()
     materials = db.query(Material).filter(Material.project_id == project_id).all()
@@ -551,7 +573,8 @@ def get_dashboard(project_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{project_id}/readiness", response_model=ProjectReadinessOut)
-def get_project_readiness(project_id: int, db: Session = Depends(get_db)):
+def get_project_readiness(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    _get_owned_project(project_id, db, current_user)
     _, materials, approvals, certificates, deliveries = _project_inputs(project_id, db)
     today = date.today()
 
@@ -632,7 +655,8 @@ def get_project_readiness(project_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{project_id}/actions", response_model=list[ActionQueueOut])
-def get_project_actions(project_id: int, db: Session = Depends(get_db)):
+def get_project_actions(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    _get_owned_project(project_id, db, current_user)
     _, materials, approvals, certificates, deliveries = _project_inputs(project_id, db)
     return _build_action_queue(
         approvals,
@@ -645,10 +669,8 @@ def get_project_actions(project_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{project_id}/evidence", response_model=ProjectEvidenceOut)
-def get_project_evidence(project_id: int, db: Session = Depends(get_db)):
-    project = db.query(Project).filter(Project.id == project_id).first()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+def get_project_evidence(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    project = _get_owned_project(project_id, db, current_user)
 
     material_count = db.query(Material).filter(Material.project_id == project_id).count()
     certificates = (
@@ -748,10 +770,8 @@ def get_project_evidence(project_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{project_id}/activity", response_model=ProjectTimelineOut)
-def get_project_activity(project_id: int, db: Session = Depends(get_db)):
-    project = db.query(Project).filter(Project.id == project_id).first()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+def get_project_activity(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    project = _get_owned_project(project_id, db, current_user)
 
     today = date.today()
     materials = db.query(Material).filter(Material.project_id == project_id).all()
@@ -777,10 +797,8 @@ def get_project_activity(project_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{project_id}/audit-trail")
-def get_project_audit_trail(project_id: int, db: Session = Depends(get_db)):
-    project = db.query(Project).filter(Project.id == project_id).first()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+def get_project_audit_trail(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    project = _get_owned_project(project_id, db, current_user)
 
     project_material_ids = [material_id for (material_id,) in db.query(Material.id).filter(Material.project_id == project_id).all()]
     trails = (

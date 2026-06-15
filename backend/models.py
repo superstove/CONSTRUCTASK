@@ -14,6 +14,8 @@ class Project(Base):
     end_date = Column(Date, nullable=False)
     status = Column(String, nullable=False)
     risk_score = Column(String, nullable=False)
+    # Owner of this project. NULL = shared demo/seed data (visible to the demo account).
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
 
     materials = relationship("Material", back_populates="project")
     approvals = relationship("Approval", back_populates="project")

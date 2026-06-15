@@ -189,6 +189,8 @@ async function getAuthToken(): Promise<string> {
     cachedToken = stored;
     return stored;
   }
+  // Demo auto-login is ON by default; set VITE_ENABLE_DEMO=false to require real sign-in (production).
+  if ((import.meta as any).env?.VITE_ENABLE_DEMO === "false") return "";
   try {
     const loginResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: "POST",

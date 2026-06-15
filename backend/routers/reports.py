@@ -53,6 +53,8 @@ def _risk_tone(level: str) -> str:
 def get_executive_report(project_id: int, db: Session = Depends(get_db),
                          current_user: User = Depends(get_current_user)):
     """Generate and return a multi-page executive PDF for one project."""
+    from routers.projects import _get_owned_project
+    _get_owned_project(project_id, db, current_user)  # 404 unless the caller owns it
     try:
         data = get_project_data(project_id)
     except ValueError:

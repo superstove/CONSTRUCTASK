@@ -137,6 +137,17 @@ class ProjectEvidenceEndpointTest(unittest.TestCase):
             {"Authorization": f"Bearer {signup.json()['access_token']}"}
         )
 
+        # The signed-up admin owns the test project (matches real ownership scoping).
+        from database import SessionLocal as _SessionLocal
+        from models import Project as _Project
+        _own_db = _SessionLocal()
+        try:
+            _proj = _own_db.query(_Project).filter(_Project.id == cls.project_id).first()
+            _proj.owner_id = signup.json()["user_id"]
+            _own_db.commit()
+        finally:
+            _own_db.close()
+
     @classmethod
     def tearDownClass(cls):
         from database import engine

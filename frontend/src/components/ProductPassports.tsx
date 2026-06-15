@@ -145,51 +145,7 @@ export default function ProductPassports({
     setEventDetails("");
   };
 
-  // Run mock analysis on QR Site release
-  const handleCheckRelease = () => {
-    if (!qrSelectedId) {
-      setCheckResult({
-        status: "error",
-        message: "Please select a material passport to verify.",
-        expiredCerts: []
-      });
-      return;
-    }
-
-    setIsChecking(true);
-    setCheckResult({ status: null, message: "", expiredCerts: [] });
-    setIsAuthorized(false);
-
-    setTimeout(() => {
-      setIsChecking(false);
-      const isChecklistComplete = Object.values(checklist).every(Boolean);
-      const selected = passports.find(p => p.id === qrSelectedId);
-      
-      const expiredCerts = certificates.filter(c =>
-        selected && c.scope?.includes(selected.name) && c.status === "Expired"
-      );
-
-      if (expiredCerts.length > 0) {
-        setCheckResult({
-          status: "warning",
-          message: `Verification on hold: ${expiredCerts[0].name} for ${selected?.name} is expired. Site release is suspended until a valid certificate is recorded.`,
-          expiredCerts
-        });
-      } else if (!isChecklistComplete) {
-        setCheckResult({
-          status: "error",
-          message: "Checklist is incomplete. All physical inspection checks must be performed and checked off successfully before authorization.",
-          expiredCerts: []
-        });
-      } else {
-        setCheckResult({
-          status: "success",
-          message: "PHYSICAL HANDSHAKE VALID: Materials matched registered specs. All field QA criteria met completely. Ready for deployment.",
-          expiredCerts: []
-        });
-      }
-    }, 1200);
-  };
+  // Material release verification lives in the VerifyMaterial component (real backend engine).
 
   // Sign Block update stage on server
   const handleAuthorizeRelease = async (status: "Verified" | "Flagged") => {

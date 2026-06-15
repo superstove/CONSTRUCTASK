@@ -20,7 +20,8 @@ import {
   Search,
   ShieldCheck,
   QrCode,
-  PackagePlus
+  PackagePlus,
+  LogOut
 } from "lucide-react";
 import { VisualTheme } from "../types";
 import { supabase } from "../lib/supabaseClient";
@@ -57,6 +58,7 @@ interface SidebarProps {
   onAddUser: (user: { name: string; email: string; role: string }) => Promise<any>;
   onDeleteUser?: (id: number) => Promise<any>;
   onSelectSubTab?: (tab: ActiveTab, subId: string) => void;
+  onLogout?: () => void;
 }
 
 export default function Sidebar({ 
@@ -80,7 +82,8 @@ export default function Sidebar({
   onSwitchUser,
   onAddUser,
   onDeleteUser,
-  onSelectSubTab
+  onSelectSubTab,
+  onLogout
 }: SidebarProps) {
 
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
@@ -433,10 +436,16 @@ export default function Sidebar({
                     )}
                   </div>
                 ))}
+                <button
+                  onClick={() => { setUserMenuOpen(false); onLogout?.(); }}
+                  className="mt-1 flex items-center gap-2 px-2 py-2 rounded-lg text-left text-[10px] font-bold text-red-600 hover:bg-red-50 transition-colors cursor-pointer border-t border-neutral-100"
+                >
+                  <LogOut className="w-3.5 h-3.5" /> Log out
+                </button>
               </div>
             )}
 
-            <button 
+            <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               className="flex-grow flex items-center gap-2.5 overflow-hidden text-left hover:opacity-85 transition-opacity cursor-pointer mr-2"
             >

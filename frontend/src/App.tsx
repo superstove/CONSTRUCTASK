@@ -31,6 +31,7 @@ import {
   createMaterial,
   exchangeGoogleSession,
   getStoredAppToken,
+  clearAppSession,
 } from "./api/backendClient";
 
 import { Project, ProductPassport, AuditBlock, ComplianceCertificate, VisualTheme, DashboardMetrics } from "./types";
@@ -44,6 +45,16 @@ export default function App() {
     setActiveTab(tab);
     // Append a nonce so re-clicking the same sub-item always re-triggers the jump.
     setRequestedSubTab(`${subId}#${Date.now()}`);
+  };
+
+  // Sign out: clear the demo flag + app token + Supabase session, then show the login page.
+  const handleLogout = async () => {
+    localStorage.removeItem("constructask_demo");
+    clearAppSession();
+    if (supabase) {
+      try { await supabase.auth.signOut(); } catch (err) { console.error("Sign-out failed:", err); }
+    }
+    setAuthStatus("signedout");
   };
   const mainRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -376,6 +387,7 @@ export default function App() {
         activeUser={activeUser}
         usersList={usersList}
         onSelectSubTab={handleSelectSubTab}
+        onLogout={handleLogout}
         onSwitchUser={(usr) => setActiveUser(usr)}
         onAddUser={async (usr) => {
           try {

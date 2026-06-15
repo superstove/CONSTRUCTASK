@@ -17,9 +17,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
+from datetime import date
+
 from auth import create_access_token, get_current_user, hash_password, verify_password
 from database import get_db
-from models import User
+from models import Project, User
 
 SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
 SUPABASE_PUBLISHABLE_KEY = os.getenv("SUPABASE_PUBLISHABLE_KEY", "")
@@ -151,11 +153,23 @@ def google_sync(body: GoogleSyncRequest, db: Session = Depends(get_db)):
 
     user = db.query(User).filter(User.email == email).first()
     if not user:
-        # First Google sign-in: create the account with the safest role.
-        user = User(name=name, email=email, role="Viewer", hashed_password=None)
+        # First Google sign-in: create the account with its own workspace.
+        user = User(name=name, email=email, role="Project Manager", hashed_password=None)
         db.add(user)
         db.commit()
         db.refresh(user)
+        # Give the new user a blank starter project so they don't land on an empty error.
+        starter = Project(
+            name="My First Project",
+            location="Set your project location",
+            start_date=date.today(),
+            end_date=date.today(),
+            status="active",
+            risk_score="LOW",
+            owner_id=user.id,
+        )
+        db.add(starter)
+        db.commit()
 
     token = create_access_token({"sub": str(user.id), "role": user.role})
 

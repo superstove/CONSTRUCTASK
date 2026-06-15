@@ -1,19 +1,25 @@
 import React, { useState } from "react";
-import { ShieldCheck, Loader2 } from "lucide-react";
+import { ShieldCheck, Loader2, Info, X } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
 export default function LoginScreen({ onDemoLogin }: { onDemoLogin: () => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showGoogleNote, setShowGoogleNote] = useState(false);
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = () => {
     if (!supabase) {
       setError("Google sign-in is not configured. Use the demo account instead.");
       return;
     }
+    setShowGoogleNote(true);
+  };
+
+  const proceedWithGoogle = async () => {
+    setShowGoogleNote(false);
     setBusy(true);
     setError(null);
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+    const { error: oauthError } = await supabase!.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: window.location.origin },
     });
@@ -64,19 +70,23 @@ export default function LoginScreen({ onDemoLogin }: { onDemoLogin: () => void }
             Sign in with Google
           </button>
 
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-neutral-200"></div>
-            <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold">or</span>
-            <div className="flex-1 h-px bg-neutral-200"></div>
-          </div>
+          {(import.meta as any).env?.VITE_ENABLE_DEMO !== "false" && (
+            <>
+              <div className="flex items-center gap-3 my-5">
+                <div className="flex-1 h-px bg-neutral-200"></div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold">or</span>
+                <div className="flex-1 h-px bg-neutral-200"></div>
+              </div>
 
-          <button
-            onClick={onDemoLogin}
-            className="w-full flex items-center justify-center gap-2 bg-black text-white rounded-xl px-4 py-3 text-sm font-bold hover:bg-neutral-800 transition-colors cursor-pointer"
-          >
-            <ShieldCheck className="w-4 h-4" />
-            Continue with Demo Account
-          </button>
+              <button
+                onClick={onDemoLogin}
+                className="w-full flex items-center justify-center gap-2 bg-black text-white rounded-xl px-4 py-3 text-sm font-bold hover:bg-neutral-800 transition-colors cursor-pointer"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                Continue with Demo Account
+              </button>
+            </>
+          )}
 
           {error && (
             <p className="mt-4 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
@@ -84,9 +94,45 @@ export default function LoginScreen({ onDemoLogin }: { onDemoLogin: () => void }
         </div>
 
         <p className="text-center text-[10px] font-mono text-neutral-400 mt-4 uppercase tracking-widest">
-          Sign in with Google, or use the demo account
+          Tip: the Demo Account has the full sample data
         </p>
       </div>
+
+      {showGoogleNote && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/50 backdrop-blur-sm px-4 animate-fadeIn">
+          <div className="w-full max-w-sm bg-white border border-neutral-200 rounded-2xl shadow-2xl p-6 relative">
+            <button
+              onClick={() => setShowGoogleNote(false)}
+              className="absolute top-4 right-4 p-1 rounded-md text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 cursor-pointer"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-4">
+              <Info className="w-5 h-5 text-blue-600" />
+            </div>
+            <h3 className="text-base font-bold text-neutral-900 tracking-tight">Signing in opens a fresh workspace</h3>
+            <p className="text-xs text-neutral-500 mt-2 leading-relaxed">
+              A Google account starts empty. All the sample materials, passports, risks and audit records
+              live in the <span className="font-bold text-neutral-700">Demo Account</span>.
+            </p>
+            <div className="flex flex-col gap-2 mt-5">
+              <button
+                onClick={proceedWithGoogle}
+                className="w-full bg-neutral-900 text-white rounded-xl px-4 py-2.5 text-sm font-bold hover:bg-neutral-800 transition-colors cursor-pointer"
+              >
+                Continue with Google
+              </button>
+              <button
+                onClick={() => { setShowGoogleNote(false); onDemoLogin(); }}
+                className="w-full bg-white border border-neutral-300 text-neutral-800 rounded-xl px-4 py-2.5 text-sm font-bold hover:bg-neutral-50 transition-colors cursor-pointer"
+              >
+                Use Demo Account instead
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
