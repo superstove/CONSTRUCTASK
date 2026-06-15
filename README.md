@@ -1,10 +1,22 @@
-# 🏗️ ConstructAsk
+<div align="center">
+  <h1>🏗️ CONSTRUCTASK</h1>
+  
+  <h3>Construction Project Intelligence & Compliance Platform</h3>
 
-> **Construction Project Intelligence & Compliance Platform**
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
+  <img src="https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+  <img src="https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vite-Bundler-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
+  <img src="https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite&logoColor=white" />
+</div>
 
-<p align="center">
+<br/>
+
+<div align="center">
   <img src="cover.png" alt="ConstructAsk Dashboard" width="100%" />
-</p>
+</div>
+
+<br/>
 
 ConstructAsk is an enterprise-grade compliance and supply-chain intelligence platform built for modern construction projects. It replaces manual paperwork and scattered emails with **Cryptographically Verifiable Digital Product Passports (DPP)**, providing a tamper-proof, real-time single source of truth for materials from the factory floor to final installation.
 
@@ -13,6 +25,8 @@ ConstructAsk is an enterprise-grade compliance and supply-chain intelligence pla
   <img src="demo.gif" alt="ConstructAsk Platform Demo" width="100%" />
   <br />
 </div>
+
+---
 
 ---
 
@@ -27,23 +41,17 @@ ConstructAsk is an enterprise-grade compliance and supply-chain intelligence pla
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Technology Stack
 
-**Frontend**
-*   React 19 & TypeScript
-*   Vite
-*   Tailwind CSS v4
-*   Framer Motion (Premium micro-animations)
-*   Lucide React (Icons)
-*   HTML5 QR Code
-
-**Backend**
-*   Python & FastAPI
-*   SQLite (Local) / PostgreSQL (Production ready via Supabase)
-*   SQLAlchemy & Alembic (ORM & Migrations)
-*   Cryptography (Ed25519 for DPP signatures, SHA-256 for audit chaining)
-*   ReportLab (PDF Generation)
-*   Google GenAI / OpenAI SDKs
+| Category | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Core Framework** | FastAPI, Python 3.11 | High-performance async REST API. |
+| **Frontend** | React 19, TypeScript, Vite | Lightning-fast SPA with modern UI/UX. |
+| **Styling & UI** | Tailwind CSS v4, Framer Motion | Premium micro-animations and responsive design. |
+| **Database** | SQLite / PostgreSQL | State persistence and relational data mapping. |
+| **Cryptography** | Ed25519, SHA-256 | DPP signatures and immutable hash-chained audit ledgers. |
+| **Generative AI** | Google Gemini / OpenAI | Evidence compliance parsing and risk analysis. |
+| **Reporting** | ReportLab | Enterprise PDF compliance matrix generation. |
 
 ---
 
