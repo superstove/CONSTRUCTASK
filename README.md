@@ -4,7 +4,11 @@
 
 ConstructAsk is an enterprise-grade compliance and supply-chain intelligence platform built for modern construction projects. It replaces manual paperwork and scattered emails with **Cryptographically Verifiable Digital Product Passports (DPP)**, providing a tamper-proof, real-time single source of truth for materials from the factory floor to final installation.
 
-https://github.com/superstove/CONSTRUCTASK/raw/main/demo.mp4
+<div align="center">
+  <br />
+  <img src="demo.mp4" alt="ConstructAsk Platform Demo" width="100%" />
+  <br />
+</div>
 
 ---
 
