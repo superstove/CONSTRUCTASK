@@ -44,31 +44,31 @@
 }
 
 :root {
-  /* Dynamic Fallbacks corresponding to theme-light */
-  --theme-bg-app: #f5f5f5;
-  --theme-bg-sidebar: #ffffff;
-  --theme-bg-card: #ffffff;
-  --theme-bg-sub: #fafafa;
-  --theme-border: #e5e5e5;
-  --theme-text-primary: #171717;
-  --theme-text-secondary: #737373;
-  --theme-accent: #000000;
-  --theme-accent-hover: #171717;
-  --theme-accent-text: #ffffff;
-  --theme-sidebar-active: #171717;
-  --theme-sidebar-active-text: #ffffff;
+  /* Dynamic Fallbacks defaulting to dark theme */
+  --theme-bg-app: #05070A;
+  --theme-bg-sidebar: #0B0F17;
+  --theme-bg-card: #0B0F17;
+  --theme-bg-sub: #05070A;
+  --theme-border: #1A2433;
+  --theme-text-primary: #ffffff;
+  --theme-text-secondary: #94a3b8;
+  --theme-accent: #14B8A6;
+  --theme-accent-hover: #0d9488;
+  --theme-accent-text: #05070A;
+  --theme-sidebar-active: #14B8A6;
+  --theme-sidebar-active-text: #05070A;
 
-  --badge-high-bg: #fee2e2;
-  --badge-high-text: #991b1b;
-  --badge-high-border: #fca5a5;
+  --badge-high-bg: rgba(239, 68, 68, 0.15);
+  --badge-high-text: #EF4444;
+  --badge-high-border: #7F1D1D;
 
-  --badge-warning-bg: #fef3c7;
-  --badge-warning-text: #92400e;
-  --badge-warning-border: #fcd34d;
+  --badge-warning-bg: rgba(245, 158, 11, 0.15);
+  --badge-warning-text: #F59E0B;
+  --badge-warning-border: #78350F;
 
-  --badge-success-bg: #d1fae5;
-  --badge-success-text: #065f46;
-  --badge-success-border: #6ee7b7;
+  --badge-success-bg: rgba(16, 185, 129, 0.15);
+  --badge-success-text: #10B981;
+  --badge-success-border: #064E3B;
 }
 
 .theme-light {
