@@ -18,6 +18,9 @@
 }
 
 @layer base {
+  html {
+    color-scheme: dark;
+  }
   body {
     @apply font-sans antialiased bg-[var(--theme-bg-app)] text-[var(--theme-text-primary)] transition-colors duration-200 selection:bg-neutral-800 selection:text-white;
   }
