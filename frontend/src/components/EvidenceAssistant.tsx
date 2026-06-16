@@ -295,29 +295,29 @@ Just ask me anything in plain language! Try one of the prompts below to get star
 
                   <div className={`rounded-xl p-4 text-xs leading-relaxed border ${
                     IsAssistant 
-                      ? "bg-neutral-50/50 border-neutral-200 text-neutral-700 shadow-sm" 
+                      ? "bg-[var(--theme-bg-sub)] border-[var(--theme-border)] text-[var(--theme-text-primary)] shadow-sm" 
                       : "bg-[#18181b] text-white border-neutral-800 shadow-sm"
                   }`}>
                     <div className="font-sans space-y-0.5">
                       {msg.content.split("\n").map((line, idx) => {
                         const trimmed = line.trim();
                         if (!trimmed) return <div key={idx} className="h-2" />;
-                        if (trimmed.startsWith('---')) return <hr key={idx} className="border-neutral-200 my-2" />;
+                        if (trimmed.startsWith('---')) return <hr key={idx} className="border-[var(--theme-border)] my-2" />;
                         if (trimmed.startsWith("### ")) {
-                          return <h4 key={idx} className="font-bold text-neutral-900 border-b border-neutral-100 pb-1 mt-3 mb-1 text-sm" style={{ marginTop: idx === 0 ? 0 : undefined }}>{trimmed.replace("### ", "")}</h4>;
+                          return <h4 key={idx} className="font-bold text-[var(--theme-text-primary)] border-b border-[var(--theme-border)] pb-1 mt-3 mb-1 text-sm" style={{ marginTop: idx === 0 ? 0 : undefined }}>{trimmed.replace("### ", "")}</h4>;
                         }
                         const emojiHeaderMatch = trimmed.match(/^([\p{Emoji}\u200d\uFE0F]+)\s+(.+)$/u);
                         if (emojiHeaderMatch && (trimmed.endsWith(':') || trimmed.includes(' — ') || trimmed.includes(' - '))) {
-                          return <p key={idx} className="font-semibold text-neutral-900 mt-2" style={{ marginTop: idx === 0 ? 0 : undefined }}>{renderInline(trimmed)}</p>;
+                          return <p key={idx} className="font-semibold text-[var(--theme-text-primary)] mt-2" style={{ marginTop: idx === 0 ? 0 : undefined }}>{renderInline(trimmed)}</p>;
                         }
                         if (trimmed.startsWith('•') || trimmed.startsWith('- ') || trimmed.startsWith('· ')) {
-                          return <p key={idx} className="pl-4 text-neutral-700">{renderInline(trimmed)}</p>;
+                          return <p key={idx} className="pl-4 text-[var(--theme-text-secondary)]">{renderInline(trimmed)}</p>;
                         }
                         if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
-                          return <p key={idx} className="font-bold text-neutral-900 mt-2">{trimmed.replace(/\*\*/g, '')}</p>;
+                          return <p key={idx} className="font-bold text-[var(--theme-text-primary)] mt-2">{trimmed.replace(/\*\*/g, '')}</p>;
                         }
                         if (trimmed.startsWith('👉') || trimmed.startsWith('💡') || trimmed.startsWith('🎯')) {
-                          return <p key={idx} className="font-medium text-neutral-800 bg-amber-50 border border-amber-100 rounded-lg px-3 py-1.5 mt-1">{renderInline(trimmed)}</p>;
+                          return <p key={idx} className="font-medium text-[var(--badge-warning-text)] bg-[var(--badge-warning-bg)] border border-[var(--badge-warning-border)] rounded-lg px-3 py-1.5 mt-1">{renderInline(trimmed)}</p>;
                         }
                         return <p key={idx}>{renderInline(trimmed)}</p>;
                       })}
