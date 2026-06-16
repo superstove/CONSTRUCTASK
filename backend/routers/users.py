@@ -11,16 +11,7 @@ router = APIRouter(dependencies=[Depends(get_current_user)])
 
 @router.get("/", response_model=list[UserOut])
 def get_users(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    if current_user.is_system:
-        # System users can see everyone
-        users = db.query(User).filter(User.is_system == False).order_by(User.id).all()
-        seen = set()
-        deduped = []
-        for u in users:
-            if u.email not in seen:
-                seen.add(u.email)
-                deduped.append(u)
-        return deduped
+    # Strictly return only the currently authenticated user to ensure total account isolation.
     return [current_user]
 
 
