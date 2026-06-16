@@ -161,7 +161,10 @@ export default function CommandCenter({
       >
         {/* Contrast Overlays */}
         <div className="absolute inset-0 bg-black/20 z-0" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-bg-card)]/90 from-10% via-[var(--theme-bg-card)]/40 via-40% to-transparent to-70% z-0" />
+        <div 
+          className="absolute inset-0 z-0" 
+          style={{ background: "linear-gradient(to right, color-mix(in srgb, var(--theme-bg-card) 95%, transparent) 10%, color-mix(in srgb, var(--theme-bg-card) 50%, transparent) 45%, transparent 75%)" }} 
+        />
         
         {/* Left Side: Text and Stats */}
         <div className="relative z-10 p-7 lg:p-10 flex-1 flex flex-col justify-between">
