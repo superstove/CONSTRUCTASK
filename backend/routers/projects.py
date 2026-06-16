@@ -2,7 +2,7 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import or_
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from auth import get_current_user, require_role
 from database import get_db
@@ -372,14 +372,31 @@ def _scan_warning_actions(project_id: int, db: Session) -> list[dict]:
 
 @router.get("/", response_model=list[ProjectOut])
 def list_projects(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    query = db.query(Project)
+    query = db.query(Project).options(
+        selectinload(Project.materials).selectinload(Material.certificates),
+        selectinload(Project.approvals),
+        selectinload(Project.deliveries)
+    )
     if current_user.email == DEMO_EMAIL:
         # Demo account: the shared seed data plus anything it created.
         query = query.filter(or_(Project.owner_id.is_(None), Project.owner_id == current_user.id))
     else:
         # Real (Google) users: only their own workspace.
         query = query.filter(Project.owner_id == current_user.id)
-    return [_project_out(project, db) for project in query.all()]
+        
+    projects_out = []
+    for project in query.all():
+        project_certs = [cert for material in project.materials for cert in material.certificates]
+        projects_out.append(
+            _project_out(
+                project, db,
+                materials=project.materials,
+                approvals=project.approvals,
+                certificates=project_certs,
+                deliveries=project.deliveries,
+            )
+        )
+    return projects_out
 
 
 @router.get("/{project_id}", response_model=ProjectOut)
