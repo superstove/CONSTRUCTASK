@@ -156,7 +156,7 @@ export default function CommandCenter({
 
       {/* DIGITAL TWIN HERO — Premium Split Layout */}
       <div 
-        className="premium-card relative rounded-2xl overflow-hidden mb-8 shadow-sm flex flex-col md:flex-row border premium-border bg-cover bg-center min-h-[400px]"
+        className="premium-card relative rounded-2xl overflow-hidden mb-8 shadow-sm flex flex-col md:flex-row border premium-border bg-cover bg-center min-h-[280px] sm:min-h-[400px]"
         style={{ backgroundImage: `url('/hero-bg.jpg')` }}
       >
         {/* Contrast Overlays */}

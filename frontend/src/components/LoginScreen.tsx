@@ -9,10 +9,10 @@ export default function LoginScreen({ onDemoLogin }: { onDemoLogin: () => void }
 
   const handleGoogleSignIn = () => {
     if (!supabase) {
-      setError("Google sign-in is not configured. Use the demo account instead.");
+      setError("Google sign-in is not configured. Use the demo account instead. (You need to add VITE_SUPABASE_URL to your Vercel Environment Variables)");
       return;
     }
-    setShowGoogleNote(true);
+    proceedWithGoogle();
   };
 
   const proceedWithGoogle = async () => {

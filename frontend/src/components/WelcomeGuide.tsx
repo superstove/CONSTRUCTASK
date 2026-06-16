@@ -103,10 +103,14 @@ export default function WelcomeGuide({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* CTA */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-1 pb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-4 pb-2 relative">
+            {/* Scroll Indicator (Visible mostly on small screens if needed) */}
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 animate-bounce sm:hidden">
+              <svg className="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+            </div>
             <button
               onClick={onClose}
-              className="bg-black text-white rounded-xl px-5 py-3 text-sm font-bold hover:bg-neutral-800 transition-colors cursor-pointer"
+              className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl px-6 py-3 text-sm font-bold transition-all cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] hover:scale-[1.02] active:scale-[0.98] ring-2 ring-cyan-500/30"
             >
               Start exploring
             </button>
