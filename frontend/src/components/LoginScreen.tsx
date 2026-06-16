@@ -9,7 +9,7 @@ export default function LoginScreen({ onDemoLogin }: { onDemoLogin: () => void }
 
   const handleGoogleSignIn = () => {
     if (!supabase) {
-      setError("Google sign-in is not configured. Use the demo account instead. (You need to add VITE_SUPABASE_URL to your Vercel Environment Variables)");
+      alert("Google sign-in is not configured. Please use the demo account instead.\n\n(To enable Google Sign-in, add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your Vercel Environment Variables)");
       return;
     }
     proceedWithGoogle();
@@ -31,9 +31,9 @@ export default function LoginScreen({ onDemoLogin }: { onDemoLogin: () => void }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#05070A] px-4 bg-cover bg-center" style={{ backgroundImage: `url('/hero-bg.jpg')` }}>
+    <div className="min-h-screen flex items-center justify-center bg-[#05070A] px-4 bg-cover bg-[center_top] sm:bg-center" style={{ backgroundImage: `url('/hero-bg.jpg')` }}>
       {/* Background Overlay */}
-      <div className="absolute inset-0 bg-[#05070A]/80 backdrop-blur-sm z-0"></div>
+      <div className="absolute inset-0 bg-[#05070A]/85 backdrop-blur-sm z-0"></div>
 
       <div className="w-full max-w-sm relative z-10">
         <div className="bg-[#0B0F17]/90 backdrop-blur-xl border border-[#1A2433] rounded-2xl shadow-2xl shadow-black/50 p-8">

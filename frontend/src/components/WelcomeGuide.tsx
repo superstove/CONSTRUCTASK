@@ -103,16 +103,21 @@ export default function WelcomeGuide({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* CTA */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-4 pb-2 relative">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-6 pb-2 relative">
             {/* Scroll Indicator (Visible mostly on small screens if needed) */}
-            <div className="absolute -top-6 left-1/2 -translate-x-1/2 animate-bounce sm:hidden">
-              <svg className="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce sm:hidden text-neutral-400">
+              <span className="text-[10px] font-bold uppercase tracking-widest mb-1 text-neutral-500">Scroll</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
             </div>
             <button
               onClick={onClose}
-              className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl px-6 py-3 text-sm font-bold transition-all cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] hover:scale-[1.02] active:scale-[0.98] ring-2 ring-cyan-500/30"
+              className="relative group bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl px-6 py-3 text-sm font-bold transition-all cursor-pointer shadow-[0_0_25px_rgba(6,182,212,0.6)] hover:shadow-[0_0_40px_rgba(6,182,212,0.9)] hover:-translate-y-0.5 active:translate-y-0 ring-2 ring-cyan-400/50"
             >
-              Start exploring
+              <div className="absolute inset-0 rounded-xl bg-white/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                Start exploring
+                <ArrowRight className="w-4 h-4" />
+              </span>
             </button>
             <span className="text-[11px] text-neutral-500">
               Tip: open the <strong>Evidence Assistant</strong> and ask{" "}

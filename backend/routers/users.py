@@ -10,8 +10,18 @@ router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.get("/", response_model=list[UserOut])
-def get_users(db: Session = Depends(get_db)):
-    return db.query(User).filter(User.is_system == False).all()
+def get_users(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if current_user.email == "demo@constructask.dev" or current_user.is_system:
+        # Deduplicate users by email (keep first instance) to fix UI bug if multiple exist
+        users = db.query(User).filter(User.is_system == False).order_by(User.id).all()
+        seen = set()
+        deduped = []
+        for u in users:
+            if u.email not in seen:
+                seen.add(u.email)
+                deduped.append(u)
+        return deduped
+    return [current_user]
 
 
 @router.post("/", response_model=UserOut, dependencies=[Depends(require_role("Admin", "Project Manager"))])
