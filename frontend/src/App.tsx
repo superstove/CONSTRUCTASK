@@ -86,11 +86,8 @@ export default function App() {
   const [authStatus, setAuthStatus] = useState<"loading" | "signedout" | "ready">("loading");
 
   // First-visit welcome guide (reopenable from the header "?" button).
-  const [showWelcome, setShowWelcome] = useState(
-    () => localStorage.getItem("constructask_welcome_seen") !== "1"
-  );
+  const [showWelcome, setShowWelcome] = useState(true);
   const closeWelcome = () => {
-    localStorage.setItem("constructask_welcome_seen", "1");
     setShowWelcome(false);
   };
 

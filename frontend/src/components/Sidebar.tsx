@@ -179,12 +179,12 @@ export default function Sidebar({
 
       <aside 
         id="sidebar-container"
-        className={`fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50 w-80 premium-sidebar h-screen flex flex-col justify-between border-r shrink-0 transition-transform duration-350 ${
+        className={`fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50 w-[min(20rem,calc(100vw-1rem))] lg:w-80 premium-sidebar h-[100dvh] lg:h-screen flex flex-col justify-between border-r shrink-0 transition-transform duration-350 ${
           isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0 lg:flex"
         }`}
       >
         {/* Top Brand Section */}
-        <div className="p-6 flex-1 overflow-y-auto max-h-[calc(100vh-180px)]">
+        <div className="p-4 sm:p-6 flex-1 overflow-y-auto max-h-[calc(100dvh-180px)] lg:max-h-[calc(100vh-180px)]">
           <div className="flex items-center justify-between mb-8 gap-2">
             <div 
               onClick={() => {

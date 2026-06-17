@@ -38,6 +38,8 @@ interface CommandCenterProps {
   onNavigateTo: (tab: any, query?: string) => void;
   selectedProjectId: string;
   isLoadingMetrics?: boolean;
+  syncIssue?: string | null;
+  onRetrySync?: () => void;
 }
 
 export default function CommandCenter({ 
@@ -52,6 +54,8 @@ export default function CommandCenter({
   onNavigateTo, 
   selectedProjectId,
   isLoadingMetrics = false,
+  syncIssue = null,
+  onRetrySync,
 }: CommandCenterProps) {
   const [isDrawerOpen, setIsDrawerOpen ] = React.useState(false);
   const [notification, setNotification] = React.useState<string | null>(null);
@@ -162,10 +166,10 @@ export default function CommandCenter({
   const sparklinePath = `M ${sparklinePoints}`;
 
   return (
-    <div id="command-center-tab" className="p-4 sm:p-6 lg:p-8 w-full space-y-6 sm:space-y-8 bg-neutral-50 min-h-screen transition-all duration-200">
+    <div id="command-center-tab" className="p-3 sm:p-6 lg:p-8 w-full max-w-full space-y-5 sm:space-y-8 bg-neutral-50 min-h-screen transition-all duration-200">
       {/* DIGITAL TWIN HERO — Premium Split Layout */}
       <div 
-        className="premium-card relative rounded-2xl overflow-hidden mb-8 shadow-sm flex flex-col md:flex-row border premium-border bg-cover bg-center min-h-[280px] sm:min-h-[400px]"
+        className="premium-card relative rounded-xl sm:rounded-2xl overflow-hidden mb-5 sm:mb-8 shadow-sm flex flex-col md:flex-row border premium-border bg-cover bg-center min-h-0 sm:min-h-[400px]"
         style={{ backgroundImage: `url('/hero-bg.jpg')` }}
       >
         {/* Contrast Overlays */}
@@ -173,7 +177,7 @@ export default function CommandCenter({
         <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-bg-card)]/90 from-10% via-[var(--theme-bg-card)]/40 via-40% to-transparent to-70% z-0" />
         
         {/* Left Side: Text and Stats */}
-        <div className="relative z-10 p-7 lg:p-10 flex-1 flex flex-col justify-between">
+        <div className="relative z-10 p-4 sm:p-7 lg:p-10 flex-1 min-w-0 flex flex-col justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-600 bg-cyan-400/10 border border-cyan-400/30 px-2.5 py-1 rounded-md flex items-center gap-1.5">
@@ -192,15 +196,15 @@ export default function CommandCenter({
               </span>
             </div>
 
-            <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight premium-text-primary">{displayProject.name}</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight premium-text-primary leading-tight break-words">{displayProject.name}</h1>
             <p className="text-sm premium-text-secondary mt-1.5 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {displayProject.location}</p>
           </div>
 
-          <div className="flex flex-wrap items-end gap-x-10 gap-y-6 mt-8">
-            <div>
+          <div className="flex flex-col lg:flex-row lg:flex-wrap lg:items-end gap-x-8 gap-y-5 mt-6 sm:mt-8">
+            <div className="min-w-0">
               <div className="text-[10px] font-mono uppercase tracking-widest premium-text-secondary">Project Readiness</div>
-              <div className="flex items-baseline gap-3 mt-1">
-                <span className="text-4xl font-extrabold font-mono tracking-tighter premium-text-primary leading-none">
+              <div className="flex flex-col min-[420px]:flex-row min-[420px]:items-baseline gap-1.5 min-[420px]:gap-3 mt-1">
+                <span className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tighter premium-text-primary leading-none break-words">
                   {isHydrating ? (
                     <span>Syncing</span>
                   ) : (
@@ -210,7 +214,7 @@ export default function CommandCenter({
                     </>
                   )}
                 </span>
-                <span className={`text-xs font-bold font-mono flex items-center gap-0.5 ${isHydrating ? "text-neutral-500" : trend < 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+                <span className={`text-xs font-bold font-mono flex items-center gap-0.5 leading-snug ${isHydrating ? "text-neutral-500" : trend < 0 ? 'text-red-500' : 'text-emerald-500'}`}>
                   {isHydrating ? (
                     "Backend evidence in progress"
                   ) : (
@@ -259,13 +263,13 @@ export default function CommandCenter({
             </div>
 
             {/* premium stat chips */}
-            <div className="flex gap-3">
+            <div className="grid grid-cols-1 min-[430px]:grid-cols-3 sm:flex gap-3 w-full lg:w-auto">
               {[
                 { label: "Signed passports", value: isHydrating ? "Syncing" : dppMetrics.activeDppCount, isNumber: !isHydrating },
                 { label: "Trace coverage", value: isHydrating ? "Syncing" : dppMetrics.traceCoverage, isNumber: !isHydrating, suffix: "%" },
                 { label: "Risk level", value: String(riskLevel).toUpperCase(), isNumber: false },
               ].map((s) => (
-                <motion.div whileHover={{ y: -2 }} key={s.label} className="px-4 py-3 rounded-xl border premium-border premium-bg-sub cursor-default transition-shadow hover:shadow-md bg-white">
+                <motion.div whileHover={{ y: -2 }} key={s.label} className="min-w-0 px-3 sm:px-4 py-3 rounded-xl border premium-border premium-bg-sub cursor-default transition-shadow hover:shadow-md bg-white">
                   <div className="text-lg font-bold font-mono premium-text-primary leading-none">
                     {s.isNumber ? <AnimatedCounter value={s.value as number} suffix={s.suffix} /> : s.value}
                   </div>
@@ -275,11 +279,11 @@ export default function CommandCenter({
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3 mt-8">
-            <button onClick={() => onNavigateTo("scan")} className="flex items-center gap-2 text-xs font-bold px-5 py-3 rounded-xl text-white transition-all hover:-translate-y-0.5 shadow-md" style={{ background: "linear-gradient(90deg,#2563EB,#06B6D4)" }}>
+          <div className="flex flex-col min-[420px]:flex-row flex-wrap gap-3 mt-6 sm:mt-8">
+            <button onClick={() => onNavigateTo("scan")} className="w-full min-[420px]:w-auto justify-center flex items-center gap-2 text-xs font-bold px-5 py-3 rounded-xl text-white transition-all hover:-translate-y-0.5 shadow-md" style={{ background: "linear-gradient(90deg,#2563EB,#06B6D4)" }}>
               <ShieldCheck className="w-4 h-4 text-white" /> Verify a material
             </button>
-            <button onClick={() => onNavigateTo("passports")} className="flex items-center gap-2 text-xs font-bold px-5 py-3 rounded-xl border premium-border premium-text-primary hover:opacity-70 transition-all bg-transparent">
+            <button onClick={() => onNavigateTo("passports")} className="w-full min-[420px]:w-auto justify-center flex items-center gap-2 text-xs font-bold px-5 py-3 rounded-xl border premium-border premium-text-primary hover:opacity-70 transition-all bg-transparent">
               <Boxes className="w-4 h-4" /> View passports
             </button>
           </div>
@@ -310,15 +314,35 @@ export default function CommandCenter({
         </div>
       </div>
 
+      {syncIssue && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-900">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-4 h-4 mt-0.5 text-amber-600 shrink-0" />
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest font-mono">Backend evidence sync paused</p>
+              <p className="text-sm mt-1 text-amber-800">{syncIssue}</p>
+            </div>
+          </div>
+          {onRetrySync && (
+            <button
+              onClick={onRetrySync}
+              className="self-start sm:self-auto bg-amber-900 text-white rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-wide"
+            >
+              Retry
+            </button>
+          )}
+        </div>
+      )}
+
       {/* DPP ADVANCED HEADER */}
-      <div className="bg-white border border-neutral-200 rounded-2xl p-6 md:p-8 shadow-xs mb-8">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tighter font-sans text-neutral-900">Digital Product Passports (DPP)</h1>
+      <div className="bg-white border border-neutral-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xs mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 gap-4">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tighter font-sans text-neutral-900 leading-tight">Digital Product Passports (DPP)</h1>
             <p className="text-sm premium-text-secondary mt-1">Reconciling factory compositions, EPD weights, certifications, and recorded material evidence.</p>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="text-right">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-6">
+            <div className="text-left sm:text-right">
               <span className="text-[10px] text-neutral-400 font-mono tracking-widest uppercase">Trace Coverage Rating</span>
               <div className="text-emerald-700 font-bold text-lg font-mono leading-none mt-1">
                 <AnimatedCounter value={dppMetrics.traceCoverage} />% TRACED

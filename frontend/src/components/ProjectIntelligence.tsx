@@ -39,7 +39,7 @@ export default function ProjectIntelligence({
   if (!intelligenceData) return null;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-10 w-full min-h-full pb-32 animate-fadeIn">
+    <div id="project-intelligence-tab" className="p-4 sm:p-6 lg:p-10 w-full min-h-full pb-32 animate-fadeIn">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-black flex items-center justify-center shrink-0 shadow-sm border border-neutral-800">

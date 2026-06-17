@@ -510,5 +510,95 @@
   color: var(--theme-text-primary) !important;
 }
 
+/* Responsive application polish for phone and tablet layouts. */
+@media (max-width: 900px) {
+  #construct-ask-app {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  #command-center-tab,
+  #product-passports-tab,
+  #compliance-tab,
+  #audit-trail-tab,
+  #evidence-assistant-tab,
+  #lifecycle-tab {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  #command-center-tab *,
+  #product-passports-tab *,
+  #compliance-tab *,
+  #audit-trail-tab *,
+  #evidence-assistant-tab *,
+  #lifecycle-tab * {
+    min-width: 0;
+  }
+
+  #product-passports-tab nav,
+  #compliance-tab nav {
+    min-width: max-content;
+    padding-inline: 0.25rem;
+  }
+
+  #product-passports-tab nav button,
+  #compliance-tab nav button {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 640px) {
+  #command-center-tab,
+  #product-passports-tab,
+  #compliance-tab,
+  #audit-trail-tab,
+  #evidence-assistant-tab,
+  #lifecycle-tab {
+    padding: 0.75rem !important;
+    row-gap: 1.25rem;
+  }
+
+  #command-center-tab .rounded-2xl,
+  #product-passports-tab .rounded-2xl,
+  #compliance-tab .rounded-2xl,
+  #audit-trail-tab .rounded-2xl,
+  #evidence-assistant-tab .rounded-2xl,
+  #lifecycle-tab .rounded-2xl {
+    border-radius: 0.875rem !important;
+  }
+
+  #product-passports-tab h2,
+  #compliance-tab h2,
+  #project-intelligence-tab h2 {
+    font-size: 1.5rem !important;
+    line-height: 1.15 !important;
+  }
+
+  #product-passports-tab section,
+  #compliance-tab section {
+    scroll-margin-top: 4rem;
+  }
+
+  #product-passports-tab input,
+  #product-passports-tab select,
+  #compliance-tab input,
+  #compliance-tab select,
+  #command-center-tab button,
+  #product-passports-tab button,
+  #compliance-tab button {
+    min-height: 44px;
+  }
+
+  #command-center-tab .fixed.bottom-6,
+  #compliance-tab .fixed.bottom-6 {
+    left: 0.75rem !important;
+    right: 0.75rem !important;
+    bottom: 0.75rem !important;
+    max-width: none !important;
+  }
+}
 
 
