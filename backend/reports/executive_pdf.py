@@ -465,7 +465,11 @@ def _draw_passport_page(c: pdf_canvas.Canvas, project, passports: list[dict], ge
         left_x = MARGIN + 18
         # QR
         qr_size = 110
-        c.drawImage(_qr_image(p["qr_payload"]), PAGE_W - MARGIN - qr_size - 18, body_top - qr_size + 10, width=qr_size, height=qr_size)
+        qr_x = PAGE_W - MARGIN - qr_size - 18
+        qr_y = body_top - qr_size + 10
+        c.drawImage(_qr_image(p["qr_payload"]), qr_x, qr_y, width=qr_size, height=qr_size)
+        c.setFillColor(GRAY); c.setFont("Helvetica-Bold", 7.5)
+        c.drawCentredString(qr_x + qr_size / 2, qr_y - 12, "SCAN TO VERIFY")
         
         # Metadata
         c.setFillColor(GRAY); c.setFont("Helvetica-Bold", 7.5)

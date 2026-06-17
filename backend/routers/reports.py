@@ -168,6 +168,9 @@ def get_executive_report(project_id: int, db: Session = Depends(get_db),
             "passport": (pp.passport_id or pp.passport_number) if pp else None,
         })
 
+    # --- Public base URL for QR codes ----------------------------------------
+    base = os.getenv("PUBLIC_VERIFY_BASE_URL") or os.getenv("PUBLIC_APP_URL") or "http://localhost:5173"
+
     # --- Passport detail rows (pick the most decision-relevant first) -------
     def _passport_priority(m):
         return {"failed": 0, "pending": 1, "verified": 2}.get(m.status, 3)
@@ -185,7 +188,7 @@ def get_executive_report(project_id: int, db: Session = Depends(get_db),
             "compliance_score": pp.compliance_score if pp else None,
             "sustainability_score": pp.sustainability_score if pp else None,
             "carbon_footprint": pp.carbon_footprint if pp else None,
-            "qr_payload": m.qr_code,
+            "qr_payload": f"{base.rstrip('/')}/?verify={m.id}",
         })
 
     # --- Audit chain status + recent events ----------------------------------
@@ -225,7 +228,6 @@ def get_executive_report(project_id: int, db: Session = Depends(get_db),
     priorities = [(r.action, r.severity) for r in plan.recommendations[:5]]
 
     # --- Verification QR target (public verify endpoint) ---------------------
-    base = os.getenv("PUBLIC_APP_URL") or "http://localhost:5173"
     verify_url = f"{base.rstrip('/')}/?project={project_id}&verify={quote(project.name)}"
 
     payload = {
