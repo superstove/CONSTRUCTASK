@@ -91,7 +91,7 @@ def _page_chrome(c: pdf_canvas.Canvas):
     c.rect(0, 60, 4, PAGE_H - 120, fill=1, stroke=0)
 
 
-def _footer(c: pdf_canvas.Canvas, project_name: str, page_label: str, generated_by: str = ""):
+def _footer(c: pdf_canvas.Canvas, project_name: str, page_label: str, generated_by: str = "", page_qr_url: str | None = None):
     y = 32
     c.setStrokeColor(LINE)
     c.setLineWidth(0.5)
@@ -104,7 +104,18 @@ def _footer(c: pdf_canvas.Canvas, project_name: str, page_label: str, generated_
     c.setFont("Helvetica", 8)
     c.drawString(MARGIN + 62, y, f"·  {project_name}")
     
-    c.drawRightString(PAGE_W - MARGIN, y, page_label)
+    # Page-specific QR in the footer (small, right-aligned)
+    if page_qr_url:
+        qr_s = 48
+        qr_x = PAGE_W - MARGIN - qr_s
+        c.drawImage(_qr_image(page_qr_url, size_px=160), qr_x, y - 16, width=qr_s, height=qr_s)
+        c.setFillColor(MUTED)
+        c.setFont("Helvetica", 6)
+        c.drawRightString(qr_x - 4, y + 2, "SCAN TO OPEN")
+        c.drawRightString(qr_x - 4, y - 7, "THIS SECTION ↗")
+        c.drawRightString(PAGE_W - MARGIN - qr_s - 4, y + 2 - 20, page_label)
+    else:
+        c.drawRightString(PAGE_W - MARGIN, y, page_label)
     
     if generated_by:
         c.setFillColor(MUTED)
@@ -380,7 +391,6 @@ def _draw_exec_dashboard(c: pdf_canvas.Canvas, project, kpis: dict, summary_text
         c.drawString(MARGIN + 16, y - 34, expected_outcome)
         y -= 60
 
-    _footer(c, project.name, "Page 1 · Executive Dashboard", generated_by)
 
 
 def _draw_materials_section(c: pdf_canvas.Canvas, project, rows: list[dict], y_start: float | None = None) -> float:
@@ -516,7 +526,6 @@ def _draw_passport_page(c: pdf_canvas.Canvas, project, passports: list[dict], ge
 
         y -= card_h + 14
 
-    _footer(c, project.name, "Page 4 · Product Passports", generated_by)
 
 
 def _draw_audit_section(c: pdf_canvas.Canvas, project, chain_ok: bool, chain_total: int,
@@ -614,7 +623,6 @@ def _draw_ai_executive_page(c: pdf_canvas.Canvas, project, root_causes: list[str
     pri_items = [(t, _tone_color(sev)) for t, sev in priorities[:5]] or [("No prioritized actions.", GREEN)]
     _bullet_block(c, MARGIN, y, PAGE_W - 2 * MARGIN, pri_items, font_size=10)
 
-    _footer(c, project.name, "Page 5 · AI Executive Intelligence", generated_by)
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
@@ -629,34 +637,46 @@ def build_executive_report(payload: dict) -> bytes:
 
     project = payload["project"]
     gen_by = payload.get("generated_by", "")
+    base_url = payload.get("verify_url", "").split("?")[0]  # strip query params to get base
+    if not base_url:
+        base_url = "https://constructask.vercel.app"
 
-    # Page 1 — Cover
+    # Page-specific deep-link QR URLs
+    qr_dashboard   = f"{base_url}?tab=command"
+    qr_materials   = f"{base_url}?tab=compliance"
+    qr_passports   = f"{base_url}?tab=passports"
+    qr_assistant   = f"{base_url}?tab=assistant"
+
+    # Page 1 — Cover (cover already has its own large QR)
     _draw_cover(c, project, payload["verify_url"], payload["generated_at"], payload["kpis"], gen_by)
     c.showPage()
 
-    # Page 2 — Executive Dashboard
+    # Page 2 — Executive Dashboard → links to Command Center
     _page_chrome(c)
     _draw_exec_dashboard(c, project, payload["kpis"], payload["summary_text"],
                          payload["risks"], payload["actions"], payload["expected_outcome"], gen_by)
+    _footer(c, project.name, "Page 2 · Executive Dashboard", gen_by, page_qr_url=qr_dashboard)
     c.showPage()
 
-    # Page 3 — Material Intelligence + Audit Trail (combined to fill the page)
+    # Page 3 — Material Intelligence + Audit Trail → links to Compliance Hub
     _page_chrome(c)
     y = _draw_materials_section(c, project, payload["material_rows"])
     _draw_audit_section(c, project, payload["chain_ok"], payload["chain_total"],
                         payload["chain_verified"], payload["audit_events"], gen_by, y_start=y - 18)
-    _footer(c, project.name, "Page 3 · Materials & Audit Trail", gen_by)
+    _footer(c, project.name, "Page 3 · Materials & Audit Trail", gen_by, page_qr_url=qr_materials)
     c.showPage()
 
-    # Page 4 — Product Passports (3 compact cards)
+    # Page 4 — Product Passports → links to Passports section
     _page_chrome(c)
     _draw_passport_page(c, project, payload["passport_rows"], gen_by)
+    _footer(c, project.name, "Page 4 · Product Passports", gen_by, page_qr_url=qr_passports)
     c.showPage()
 
-    # Page 5 — AI Executive Intelligence
+    # Page 5 — AI Executive Intelligence → links to Evidence Assistant
     _page_chrome(c)
     _draw_ai_executive_page(c, project, payload["root_causes"],
                             payload["forecast"], payload["priorities"], gen_by)
+    _footer(c, project.name, "Page 5 · AI Executive Intelligence", gen_by, page_qr_url=qr_assistant)
     c.showPage()
     c.save()
     return buf.getvalue()

@@ -60,7 +60,11 @@ function createLoadingProject(option: { id: string; name: string; location: stri
 }
 
 export default function App() {
-  const [activeTab, setActiveTab ] = useState<ActiveTab>("command");
+  // Support ?tab= deep-linking from PDF QR codes (e.g. ?tab=passports)
+  const validTabs: ActiveTab[] = ["command", "project-intelligence", "passports", "lifecycle", "compliance", "audit", "assistant", "scan", "about", "settings"];
+  const urlTab = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("tab") : null;
+  const initialTab: ActiveTab = urlTab && validTabs.includes(urlTab as ActiveTab) ? (urlTab as ActiveTab) : "command";
+  const [activeTab, setActiveTab ] = useState<ActiveTab>(initialTab);
   // Sub-tab requested from the expandable sidebar (e.g. "readiness", "registry").
   const [requestedSubTab, setRequestedSubTab] = useState<string | null>(null);
   const handleSelectSubTab = (tab: ActiveTab, subId: string) => {
