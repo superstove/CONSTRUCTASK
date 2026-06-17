@@ -67,7 +67,7 @@ export default function CommandCenter({
     }, 4500);
   };
 
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = React.useState(false);
 
   const handleDownloadPDF = async () => {
     // Enterprise PDF — generated server-side (ReportLab), using the app's auth flow.
