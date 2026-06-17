@@ -228,7 +228,7 @@ def get_executive_report(project_id: int, db: Session = Depends(get_db),
     priorities = [(r.action, r.severity) for r in plan.recommendations[:5]]
 
     # --- Verification QR target (public verify endpoint) ---------------------
-    verify_url = f"{base.rstrip('/')}/?project={project_id}&verify={quote(project.name)}"
+    verify_url = f"{base.rstrip('/')}/?tab=command"
 
     payload = {
         "project": project,
