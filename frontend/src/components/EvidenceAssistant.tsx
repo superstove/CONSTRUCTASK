@@ -29,6 +29,7 @@ interface EvidenceAssistantProps {
   onSendMessage: (text: string) => Promise<{ answer: string; followUps: string[]; chart: AssistantChartData | null }>;
   prefilledPrompt?: string | null;
   setPrefilledPrompt?: (val: string | null) => void;
+  compact?: boolean;
 }
 
 const CHART_TONE_CLASSES: Record<string, string> = {
@@ -73,7 +74,7 @@ function AnswerChart({ chart }: { chart: AssistantChartData }) {
   );
 }
 
-export default function EvidenceAssistant({ onSendMessage, prefilledPrompt, setPrefilledPrompt }: EvidenceAssistantProps) {
+export default function EvidenceAssistant({ onSendMessage, prefilledPrompt, setPrefilledPrompt, compact }: EvidenceAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "initial-msg",
@@ -209,9 +210,10 @@ Just ask me anything in plain language! Try one of the prompts below to get star
   };
 
   return (
-    <div id="evidence-assistant-tab" className="p-4 sm:p-6 lg:p-8 w-full space-y-6 sm:space-y-8 bg-neutral-50 transition-all">
+    <div id="evidence-assistant-tab" className={compact ? "flex flex-col h-full bg-white transition-all w-full" : "p-4 sm:p-6 lg:p-8 w-full space-y-6 sm:space-y-8 bg-neutral-50 transition-all"}>
       
       {/* 1. EXECUTIVE SUMMARY HEADER */}
+      {!compact && (
       <section id="assistant-executive-header" className="flex flex-col md:flex-row md:items-center justify-between border-b border-neutral-200 pb-5 gap-4">
         <div>
           <span className="text-[10px] font-mono premium-accent-bg px-2.5 py-1 rounded font-bold uppercase tracking-widest">
@@ -229,8 +231,10 @@ Just ask me anything in plain language! Try one of the prompts below to get star
           <span>ERP EVIDENCE MODE</span>
         </div>
       </section>
+      )}
 
       {/* 2. CONTEXT PANEL */}
+      {!compact && (
       <section id="assistant-context-panel" className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs grid grid-cols-1 md:grid-cols-4 gap-6">
         <div>
           <span className="text-[9px] font-mono text-neutral-400 font-bold block uppercase tracking-wider">PROJECT FEEDS CONNECTED</span>
@@ -258,20 +262,23 @@ Just ask me anything in plain language! Try one of the prompts below to get star
           </span>
         </div>
       </section>
+      )}
 
       {/* 3. CORE VIEW: THE CONVERSATIONAL STREAM WORKSPACE & INPUT PANEL */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className={compact ? "flex-1 flex flex-col min-h-0 overflow-hidden" : "grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"}>
         
         {/* Left Big Panel: The chat interaction workspace */}
-        <div className="lg:col-span-8 bg-white border border-neutral-200 rounded-2xl p-6 shadow-xs space-y-6">
+        <div className={compact ? "flex-1 flex flex-col min-h-0 bg-white" : "lg:col-span-8 bg-white border border-neutral-200 rounded-2xl p-6 shadow-xs space-y-6"}>
+          {!compact && (
           <div className="border-b pb-3 flex items-center justify-between">
             <h3 className="text-xs font-bold uppercase tracking-widest text-[#a3a3a3] font-mono flex items-center gap-1.5">
               <Activity className="w-4 h-4 text-black animate-pulse" /> Live Reasoning Stream
             </h3>
             <span className="text-[9px] font-mono text-neutral-400 font-semibold">Ready for context inputs</span>
           </div>
+          )}
 
-          <div ref={chatContainerRef} className="space-y-6 max-h-[550px] overflow-y-auto pr-2">
+          <div ref={chatContainerRef} className={compact ? "flex-1 overflow-y-auto px-4 py-4 space-y-4 scroll-smooth" : "space-y-6 max-h-[550px] overflow-y-auto pr-2"}>
             {messages.map((msg) => {
               const IsAssistant = msg.role === "assistant";
               return (
@@ -384,30 +391,32 @@ Just ask me anything in plain language! Try one of the prompts below to get star
           </div>
 
           {/* Input text controls */}
-          <form onSubmit={handleSubmit} className="flex gap-3 pt-4 border-t border-neutral-150">
-            <input 
+          <form 
+            onSubmit={handleSubmit} 
+            className={compact ? "shrink-0 p-3 bg-white border-t border-neutral-100 flex items-center gap-2" : "mt-4 pt-4 border-t border-neutral-150 flex items-center gap-3 relative"}
+          >
+            <input
               type="text"
-              id="assistant-input-box"
-              placeholder="Ask anything about this project, a material, supplier, approval, delivery, scan, or ERP risk..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
+              placeholder="Ask Evidence AI..."
+              className={compact ? "flex-1 bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2 text-xs text-neutral-800 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-black" : "w-full bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-250 rounded-xl px-5 py-3.5 text-xs text-neutral-800 font-medium placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"}
               disabled={isGenerating}
-              className="bg-neutral-50 border border-neutral-200 focus:bg-white rounded-xl px-5 py-3 text-xs flex-1 focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
             />
             <button
               type="submit"
-              id="assistant-submit-btn"
               disabled={!inputText.trim() || isGenerating}
-              className="bg-black hover:bg-neutral-850 text-white font-bold rounded-xl text-[10.5px] px-5 py-3 flex items-center gap-1.5 shadow transition-all disabled:opacity-40 uppercase font-mono tracking-wider cursor-pointer"
+              className={compact ? "bg-black hover:bg-neutral-800 text-white rounded-lg px-3 py-2 flex items-center justify-center disabled:opacity-40 transition-colors" : "bg-black hover:bg-neutral-850 text-white font-bold rounded-xl text-[10.5px] px-5 py-3 flex items-center gap-1.5 shadow transition-all disabled:opacity-40 uppercase font-mono tracking-wider cursor-pointer"}
             >
-              <span>Evaluate</span>
-              <Send className="w-3.5 h-3.5" />
+              {!compact && <span>Evaluate</span>}
+              <Send className={compact ? "w-4 h-4" : "w-3.5 h-3.5"} />
             </button>
           </form>
 
         </div>
 
         {/* Right Side Panel: Suggested Quick Assistant Resources */}
+        {!compact && (
         <div className="lg:col-span-4 bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs space-y-4">
           <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-[#a3a3a3] border-b pb-3">
             Evidence Context Sources
@@ -427,10 +436,12 @@ Just ask me anything in plain language! Try one of the prompts below to get star
             </div>
           </div>
         </div>
+        )}
 
       </div>
 
       {/* 4. AI INSIGHT CARD */}
+      {!compact && (
       <section id="assistant-ai-insight" className="bg-neutral-50 border border-neutral-250 p-5 rounded-2xl shadow-xs space-y-3">
         <div className="flex items-center justify-between border-b pb-2">
           <span className="text-[10px] font-mono font-bold text-neutral-500 uppercase tracking-widest flex items-center gap-1.5">
@@ -442,8 +453,10 @@ Just ask me anything in plain language! Try one of the prompts below to get star
           The assistant now answers from live ERP-style project records. It does not assume a material or supplier flow is safe because the UI says so; it checks material status, certificate expiry, approval state, delivery delay, supplier evidence, audit history, and latest QR scan evidence before recommending the next action.
         </p>
       </section>
+      )}
 
       {/* 5. EVIDENCE SECTION */}
+      {!compact && (
       <section id="assistant-evidence" className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-xs space-y-4">
         <h3 className="text-xs font-bold uppercase tracking-widest text-[#a3a3a3] border-b pb-3 font-mono">
           Associated Evidence Sources
@@ -466,8 +479,10 @@ Just ask me anything in plain language! Try one of the prompts below to get star
           </div>
         </div>
       </section>
+      )}
 
       {/* 6. ACTION RECOMMENDATIONS */}
+      {!compact && (
       <section id="assistant-actions" className="bg-[#1c1c1c] text-white border border-neutral-900 rounded-2xl p-6 shadow-xs space-y-4">
         <div className="flex items-center justify-between border-b border-neutral-850 pb-3">
           <h4 className="text-[10px] font-mono font-bold uppercase text-neutral-[#a3a3a3] tracking-widest">
@@ -494,6 +509,7 @@ Just ask me anything in plain language! Try one of the prompts below to get star
           </li>
         </ul>
       </section>
+      )}
 
     </div>
   );

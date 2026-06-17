@@ -14,12 +14,13 @@ const ProductPassports = React.lazy(() => import("./components/ProductPassports"
 const LifecycleIntelligence = React.lazy(() => import("./components/LifecycleIntelligence"));
 const ComplianceHub = React.lazy(() => import("./components/ComplianceHub"));
 const AuditTrail = React.lazy(() => import("./components/AuditTrail"));
-const EvidenceAssistant = React.lazy(() => import("./components/EvidenceAssistant"));
 const ScanLog = React.lazy(() => import("./components/ScanLog"));
 const ProjectIntelligence = React.lazy(() => import("./components/ProjectIntelligence"));
 const AboutPage = React.lazy(() => import("./components/AboutPage"));
 const SettingsPage = React.lazy(() => import("./components/SettingsPage"));
 import GlobalSearchModal from "./components/GlobalSearchModal";
+import FloatingEvidenceAssistant from "./components/FloatingEvidenceAssistant";
+import EvidenceAssistant from "./components/EvidenceAssistant";
 import {
   askAssistant,
   createProject,
@@ -658,6 +659,7 @@ export default function App() {
           {activeTab === "settings" && (
             <SettingsPage />
           )}
+
             </motion.div>
           </AnimatePresence>
           </React.Suspense>
@@ -665,6 +667,11 @@ export default function App() {
           </div>
         </main>
       </div>
+
+      <FloatingEvidenceAssistant 
+        hidden={activeTab === "assistant"}
+        onSendMessage={handleSendMessage}
+      />
     </div>
   );
 }
