@@ -16,7 +16,7 @@ export default function FloatingEvidenceAssistant({ onSendMessage, hidden }: Flo
   if (hidden) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[100] flex flex-col items-end">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -24,8 +24,8 @@ export default function FloatingEvidenceAssistant({ onSendMessage, hidden }: Flo
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="mb-4 bg-white rounded-2xl shadow-2xl border border-neutral-200 overflow-hidden flex flex-col pointer-events-auto"
-            style={{ width: '400px', height: '600px', maxHeight: 'calc(100vh - 120px)' }}
+            className="mb-4 bg-white rounded-2xl shadow-2xl border border-neutral-200 overflow-hidden flex flex-col pointer-events-auto w-[calc(100vw-2rem)] sm:w-[400px]"
+            style={{ height: '600px', maxHeight: 'calc(100dvh - 130px)' }}
           >
             {/* Header */}
             <div className="bg-black text-white px-4 py-3 flex items-center justify-between shrink-0">
