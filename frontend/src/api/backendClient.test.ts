@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  clearAppSession,
+  getProjectBundle,
+  listProjects,
+  listUsers,
   mapCertificate,
   mapMaterialToPassport,
   mapProjectOption,
@@ -26,6 +30,191 @@ test("maps FastAPI project records to selector options", () => {
     manager: "Site Manager",
     risk: "HIGH",
   });
+});
+
+test("shares one demo login across concurrent API requests", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalLocalStorage = globalThis.localStorage;
+  const store = new Map<string, string>();
+  const requestedUrls: string[] = [];
+
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => store.set(key, value),
+      removeItem: (key: string) => store.delete(key),
+    },
+  });
+
+  globalThis.fetch = (async (url: string | URL | Request) => {
+    const href = String(url);
+    requestedUrls.push(href);
+
+    if (href.endsWith("/api/auth/login")) {
+      return new Response(JSON.stringify({
+        access_token: "demo-token",
+        token_type: "bearer",
+        user_id: 1,
+        name: "Anton Demo",
+        role: "Project Manager",
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+
+    if (href.endsWith("/api/projects/")) {
+      return new Response(JSON.stringify([{
+        id: 24,
+        name: "NH66 Highway Slope Protection",
+        location: "Kerala, India",
+        start_date: "2026-01-01",
+        end_date: "2026-12-31",
+        status: "Active",
+        risk_score: "High",
+      }]), { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+
+    if (href.endsWith("/api/users/")) {
+      return new Response(JSON.stringify([{
+        id: 1,
+        name: "Anton Demo",
+        email: "demo@constructask.dev",
+        role: "Project Manager",
+      }]), { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+
+    return new Response("not found", { status: 404 });
+  }) as typeof fetch;
+
+  try {
+    clearAppSession();
+
+    await Promise.all([
+      listProjects(),
+      listUsers(),
+    ]);
+
+    assert.equal(
+      requestedUrls.filter((url) => url.endsWith("/api/auth/login")).length,
+      1
+    );
+  } finally {
+    clearAppSession();
+    globalThis.fetch = originalFetch;
+    Object.defineProperty(globalThis, "localStorage", {
+      configurable: true,
+      value: originalLocalStorage,
+    });
+  }
+});
+
+test("loads project startup data from the backend bundle endpoint", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalLocalStorage = globalThis.localStorage;
+  const store = new Map<string, string>();
+  const requestedUrls: string[] = [];
+
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => store.set(key, value),
+      removeItem: (key: string) => store.delete(key),
+    },
+  });
+
+  globalThis.fetch = (async (url: string | URL | Request) => {
+    const href = String(url);
+    requestedUrls.push(href);
+
+    if (href.endsWith("/api/auth/login")) {
+      return new Response(JSON.stringify({
+        access_token: "demo-token",
+        token_type: "bearer",
+        user_id: 1,
+        name: "Anton Demo",
+        role: "Project Manager",
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+
+    if (href.endsWith("/api/projects/24/bundle")) {
+      return new Response(JSON.stringify({
+        project: {
+          id: 24,
+          name: "NH66 Highway Slope Protection",
+          location: "Kerala, India",
+          start_date: "2026-01-01",
+          end_date: "2026-12-31",
+          status: "Active",
+          risk_score: "Low",
+        },
+        dashboard: {
+          project: {
+            id: 24,
+            name: "NH66 Highway Slope Protection",
+            location: "Kerala, India",
+            start_date: "2026-01-01",
+            end_date: "2026-12-31",
+            status: "Active",
+            risk_score: "Low",
+          },
+          total_materials: 0,
+          pending_approvals: 0,
+          expiring_certs: 0,
+          total_deliveries: 0,
+          ontime_deliveries: 0,
+          delayed_deliveries: 0,
+          alerts: [],
+          reasoning_sources: [],
+          workflow_dependencies: [],
+          health_timeline: [],
+          activity_timeline: [],
+          executive_brief: ["No active blockers."],
+          risk_confidence: "Low",
+          supplier_risks: [],
+        },
+        readiness: {
+          status: "No Materials Yet",
+          score: 0,
+          blockers: 0,
+          warnings: 0,
+          reasons: ["No materials have been added."],
+          next_action: "Add the project's first material.",
+        },
+        actions: [],
+        materials: [],
+        certificates: [],
+        approvals: [],
+        scans: [],
+        passports: [],
+        audit_trail: [],
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+
+    return new Response("not found", { status: 404 });
+  }) as typeof fetch;
+
+  try {
+    clearAppSession();
+
+    const bundle = await getProjectBundle(24);
+
+    assert.equal(bundle.project.name, "NH66 Highway Slope Protection");
+    assert.equal(
+      requestedUrls.filter((url) => url.endsWith("/api/projects/24/bundle")).length,
+      1
+    );
+    assert.equal(
+      requestedUrls.some((url) => url.includes("/api/projects/24/dashboard")),
+      false
+    );
+  } finally {
+    clearAppSession();
+    globalThis.fetch = originalFetch;
+    Object.defineProperty(globalThis, "localStorage", {
+      configurable: true,
+      value: originalLocalStorage,
+    });
+  }
 });
 
 test("maps materials and linked certificate names into product passports", () => {

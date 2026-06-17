@@ -341,6 +341,21 @@ class ProjectEvidenceEndpointTest(unittest.TestCase):
         self.assertEqual(marker_supplier["risk"], "Medium")
         self.assertEqual(marker_supplier["reason"], "No delivery record linked")
 
+    def test_project_bundle_returns_command_center_startup_payload(self):
+        response = self.client.get(f"/api/projects/{self.project_id}/bundle")
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["project"]["name"], "Test Highway")
+        self.assertEqual(data["dashboard"]["project"]["name"], "Test Highway")
+        self.assertEqual(data["readiness"]["status"], "Blocked")
+        self.assertGreaterEqual(len(data["actions"]), 3)
+        self.assertGreaterEqual(len(data["materials"]), 2)
+        self.assertGreaterEqual(len(data["certificates"]), 1)
+        self.assertGreaterEqual(len(data["approvals"]), 1)
+        self.assertGreaterEqual(len(data["scans"]), 2)
+        self.assertIn("audit_trail", data)
+
     def test_action_queue_ranks_certificate_before_delivery_and_approval(self):
         response = self.client.get(f"/api/projects/{self.project_id}/actions")
 

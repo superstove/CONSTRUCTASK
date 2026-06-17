@@ -136,11 +136,25 @@ type FastApiAction = {
   owner: string;
 };
 
+type FastApiProjectBundle = {
+  project: FastApiProject;
+  dashboard: FastApiDashboard;
+  readiness: FastApiReadiness;
+  actions: FastApiAction[];
+  materials: FastApiMaterial[];
+  certificates: FastApiCertificate[];
+  approvals: FastApiApproval[];
+  scans: FastApiScan[];
+  passports: FastApiPassport[];
+  audit_trail: any[];
+};
+
 const API_BASE_URL =
   ((import.meta as any).env?.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ||
   "http://127.0.0.1:8000";
 
 let cachedToken: string | null = null;
+let tokenRequest: Promise<string> | null = null;
 
 const APP_TOKEN_KEY = "constructask_app_token";
 const APP_USER_KEY = "constructask_app_user";
@@ -162,6 +176,7 @@ export function clearAppSession(): void {
   localStorage.removeItem(APP_TOKEN_KEY);
   localStorage.removeItem(APP_USER_KEY);
   cachedToken = null;
+  tokenRequest = null;
 }
 
 /** Exchange a Supabase (Google) session token for this app's own JWT. */
@@ -189,26 +204,34 @@ async function getAuthToken(): Promise<string> {
     cachedToken = stored;
     return stored;
   }
+  if (tokenRequest) return tokenRequest;
   // Demo auto-login is ON by default; set VITE_ENABLE_DEMO=false to require real sign-in (production).
   if ((import.meta as any).env?.VITE_ENABLE_DEMO === "false") return "";
-  try {
-    const loginResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: (import.meta as any).env?.VITE_DEMO_EMAIL || "demo@constructask.dev",
-        password: (import.meta as any).env?.VITE_DEMO_PASSWORD || "demo1234",
-      }),
-    });
-    if (loginResponse.ok) {
-      const data = await loginResponse.json();
-      cachedToken = data.access_token;
-      return cachedToken || "";
+
+  tokenRequest = (async () => {
+    try {
+      const loginResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: (import.meta as any).env?.VITE_DEMO_EMAIL || "demo@constructask.dev",
+          password: (import.meta as any).env?.VITE_DEMO_PASSWORD || "demo1234",
+        }),
+      });
+      if (loginResponse.ok) {
+        const data = await loginResponse.json();
+        cachedToken = data.access_token;
+        return cachedToken || "";
+      }
+    } catch (err) {
+      console.error("Auto-login failed", err);
+    } finally {
+      tokenRequest = null;
     }
-  } catch (err) {
-    console.error("Auto-login failed", err);
-  }
-  return "";
+    return "";
+  })();
+
+  return tokenRequest;
 }
 
 /** Download the server-generated enterprise PDF using the app's auth token. */
@@ -539,7 +562,7 @@ export async function createProject(input: { name: string; location: string; man
 
 export async function getProjectBundle(projectId: string | number) {
   const id = numericId(projectId);
-  const [
+  const {
     project,
     dashboard,
     readiness,
@@ -548,20 +571,9 @@ export async function getProjectBundle(projectId: string | number) {
     certificates,
     approvals,
     scans,
-    apiPassports,
-    apiAuditTrails,
-  ] = await Promise.all([
-    apiFetch<FastApiProject>(`/api/projects/${id}`),
-    apiFetch<FastApiDashboard>(`/api/projects/${id}/dashboard`),
-    apiFetch<FastApiReadiness>(`/api/projects/${id}/readiness`),
-    apiFetch<FastApiAction[]>(`/api/projects/${id}/actions`),
-    apiFetch<FastApiMaterial[]>(`/api/materials/?project_id=${id}`),
-    apiFetch<FastApiCertificate[]>(`/api/compliance/?project_id=${id}`),
-    apiFetch<FastApiApproval[]>(`/api/approvals/?project_id=${id}`),
-    apiFetch<FastApiScan[]>(`/api/materials/scans/all?project_id=${id}`),
-    apiFetch<FastApiPassport[]>(`/api/materials/passports?project_id=${id}`),
-    apiFetch<any[]>(`/api/projects/${id}/audit-trail`),
-  ]);
+    passports: apiPassports,
+    audit_trail: apiAuditTrails,
+  } = await apiFetch<FastApiProjectBundle>(`/api/projects/${id}/bundle`);
 
   const mappedCertificates = certificates.map(mapCertificate);
   

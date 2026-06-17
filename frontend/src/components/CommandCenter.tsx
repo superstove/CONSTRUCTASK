@@ -37,6 +37,7 @@ interface CommandCenterProps {
   intelligenceData?: any;
   onNavigateTo: (tab: any, query?: string) => void;
   selectedProjectId: string;
+  isLoadingMetrics?: boolean;
 }
 
 export default function CommandCenter({ 
@@ -49,7 +50,8 @@ export default function CommandCenter({
   risksList,
   intelligenceData,
   onNavigateTo, 
-  selectedProjectId 
+  selectedProjectId,
+  isLoadingMetrics = false,
 }: CommandCenterProps) {
   const [isDrawerOpen, setIsDrawerOpen ] = React.useState(false);
   const [notification, setNotification] = React.useState<string | null>(null);
@@ -71,17 +73,23 @@ export default function CommandCenter({
     }
   };
 
-  if (!project) {
-    return (
-      <div id="loading-command" className="p-8 text-neutral-500 font-mono text-xs flex items-center gap-2">
-        <span className="w-4 h-4 rounded-full border-2 border-neutral-300 border-t-black animate-spin" />
-        Loading project metrics...
-      </div>
-    );
-  }
+  const isHydrating = isLoadingMetrics || !project;
+  const displayProject: Project = project ?? {
+    id: selectedProjectId || "pending",
+    name: "Construct Ask Command Center",
+    location: "Project workspace",
+    status: "In Progress",
+    manager: "Site Manager",
+    complianceScore: 0,
+    coverageScore: 0,
+    auditIntegrityScore: 0,
+    passports: [],
+    certificates: [],
+    globalAuditLogsCount: 0,
+  };
 
   // Retrieve materials list dynamically from backend project feed
-  const passports = project.passports || [];
+  const passports = displayProject.passports || [];
 
   // Compute dynamic compliance percentages straight from REST API props (Anton-level strict math)
   const matTotal = materialsData?.total ?? 0;
@@ -118,22 +126,24 @@ export default function CommandCenter({
   const weightedReadiness = computedReadiness;
   const backendReadiness = executiveSummary?.readiness;
   const readiness = typeof backendReadiness?.score === "number" ? backendReadiness.score : computedReadiness;
-  const readinessStatus = backendReadiness?.status || "Unknown";
+  const readinessStatus = isHydrating ? "Syncing" : backendReadiness?.status || "Unknown";
 
   // Executive summary states
-  const riskLevel = executiveSummary?.risk_level ?? "HIGH";
+  const riskLevel = isHydrating ? "Syncing" : executiveSummary?.risk_level ?? "Unknown";
   const isHighRisk = String(riskLevel).toUpperCase() === "HIGH";
   const isMediumRisk = String(riskLevel).toUpperCase() === "MEDIUM";
-  const summaryBlockText = executiveSummary?.summary ?? "No backend executive brief is available for this project.";
+  const summaryBlockText = isHydrating
+    ? "Project workspace is ready. Live backend evidence is syncing in the background."
+    : executiveSummary?.summary ?? "No backend executive brief is available for this project.";
   const executiveBriefItems =
     Array.isArray(executiveSummary?.brief_items) && executiveSummary.brief_items.length
       ? executiveSummary.brief_items
       : [summaryBlockText];
   const briefTargets = ["compliance", "passports", "audit", "lifecycle", "assistant"];
-  const dppMetrics = calculateDppMetrics(project.passports || [], project.certificates || []);
+  const dppMetrics = calculateDppMetrics(displayProject.passports || [], displayProject.certificates || []);
 
   // Generate deterministic intelligence data based on project ID to apply to any new project
-  const hash = project.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const hash = displayProject.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const trend = (hash % 30) - 12; // -12% to +17%
   const criticalBlockers = hash % 5;
   const expectedCompletionDays = 12 + (hash % 25);
@@ -153,7 +163,6 @@ export default function CommandCenter({
 
   return (
     <div id="command-center-tab" className="p-4 sm:p-6 lg:p-8 w-full space-y-6 sm:space-y-8 bg-neutral-50 min-h-screen transition-all duration-200">
-
       {/* DIGITAL TWIN HERO — Premium Split Layout */}
       <div 
         className="premium-card relative rounded-2xl overflow-hidden mb-8 shadow-sm flex flex-col md:flex-row border premium-border bg-cover bg-center min-h-[280px] sm:min-h-[400px]"
@@ -173,10 +182,18 @@ export default function CommandCenter({
               <span className="text-[10px] font-mono uppercase tracking-widest text-blue-600 bg-blue-500/10 border border-blue-500/30 px-2.5 py-1 rounded-md flex items-center gap-1.5">
                 <QrCode className="w-3 h-3" /> Live QR Verification
               </span>
+              <span className={`text-[10px] font-mono uppercase tracking-widest border px-2.5 py-1 rounded-md flex items-center gap-1.5 ${
+                isHydrating
+                  ? "text-amber-700 bg-amber-50/90 border-amber-200"
+                  : "text-emerald-700 bg-emerald-50/90 border-emerald-200"
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${isHydrating ? "bg-amber-500 animate-pulse" : "bg-emerald-500"}`} />
+                {isHydrating ? "Live data syncing" : "Live data ready"}
+              </span>
             </div>
 
-            <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight premium-text-primary">{project.name}</h1>
-            <p className="text-sm premium-text-secondary mt-1.5 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {project.location}</p>
+            <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight premium-text-primary">{displayProject.name}</h1>
+            <p className="text-sm premium-text-secondary mt-1.5 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {displayProject.location}</p>
           </div>
 
           <div className="flex flex-wrap items-end gap-x-10 gap-y-6 mt-8">
@@ -184,12 +201,24 @@ export default function CommandCenter({
               <div className="text-[10px] font-mono uppercase tracking-widest premium-text-secondary">Project Readiness</div>
               <div className="flex items-baseline gap-3 mt-1">
                 <span className="text-4xl font-extrabold font-mono tracking-tighter premium-text-primary leading-none">
-                  <AnimatedCounter value={readiness} />
-                  <span className="text-xl premium-text-secondary">%</span>
+                  {isHydrating ? (
+                    <span>Syncing</span>
+                  ) : (
+                    <>
+                      <AnimatedCounter value={readiness} />
+                      <span className="text-xl premium-text-secondary">%</span>
+                    </>
+                  )}
                 </span>
-                <span className={`text-xs font-bold font-mono flex items-center gap-0.5 ${trend < 0 ? 'text-red-500' : 'text-emerald-500'}`}>
-                  {trend < 0 ? <ArrowDownRight className="w-3.5 h-3.5" /> : <ArrowUpRight className="w-3.5 h-3.5" />}
-                  <AnimatedCounter value={trend} />% this week
+                <span className={`text-xs font-bold font-mono flex items-center gap-0.5 ${isHydrating ? "text-neutral-500" : trend < 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+                  {isHydrating ? (
+                    "Backend evidence in progress"
+                  ) : (
+                    <>
+                      {trend < 0 ? <ArrowDownRight className="w-3.5 h-3.5" /> : <ArrowUpRight className="w-3.5 h-3.5" />}
+                      <AnimatedCounter value={trend} />% this week
+                    </>
+                  )}
                 </span>
               </div>
               
@@ -216,14 +245,14 @@ export default function CommandCenter({
               <div className="flex flex-col gap-1.5 mt-2">
                  <div className="text-[10px] font-mono premium-text-secondary flex justify-between gap-4">
                    <span>Critical blockers:</span>
-                   <span className={`font-bold ${criticalBlockers > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
-                     <AnimatedCounter value={criticalBlockers} />
+                   <span className={`font-bold ${isHydrating ? "text-neutral-500" : criticalBlockers > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+                     {isHydrating ? "Syncing" : <AnimatedCounter value={criticalBlockers} />}
                    </span>
                  </div>
                  <div className="text-[10px] font-mono premium-text-secondary flex justify-between gap-4">
                    <span>Expected completion:</span>
                    <span className="font-bold premium-text-primary">
-                     <AnimatedCounter value={expectedCompletionDays} /> days
+                     {isHydrating ? "Syncing" : <><AnimatedCounter value={expectedCompletionDays} /> days</>}
                    </span>
                  </div>
               </div>
@@ -232,8 +261,8 @@ export default function CommandCenter({
             {/* premium stat chips */}
             <div className="flex gap-3">
               {[
-                { label: "Signed passports", value: dppMetrics.activeDppCount, isNumber: true },
-                { label: "Trace coverage", value: dppMetrics.traceCoverage, isNumber: true, suffix: "%" },
+                { label: "Signed passports", value: isHydrating ? "Syncing" : dppMetrics.activeDppCount, isNumber: !isHydrating },
+                { label: "Trace coverage", value: isHydrating ? "Syncing" : dppMetrics.traceCoverage, isNumber: !isHydrating, suffix: "%" },
                 { label: "Risk level", value: String(riskLevel).toUpperCase(), isNumber: false },
               ].map((s) => (
                 <motion.div whileHover={{ y: -2 }} key={s.label} className="px-4 py-3 rounded-xl border premium-border premium-bg-sub cursor-default transition-shadow hover:shadow-md bg-white">
@@ -304,7 +333,7 @@ export default function CommandCenter({
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 border-t border-neutral-100 pt-6">
           <div className="space-y-1">
             <span className="text-[9px] text-neutral-400 font-mono tracking-widest uppercase">Project Metadata</span>
-            <div className="text-xs font-bold text-neutral-900 uppercase truncate" title={project.name}>{project.name}</div>
+            <div className="text-xs font-bold text-neutral-900 uppercase truncate" title={displayProject.name}>{displayProject.name}</div>
           </div>
           <div className="space-y-1">
              <span className="text-[9px] text-neutral-400 font-mono tracking-widest uppercase">Audit Trust Mode</span>

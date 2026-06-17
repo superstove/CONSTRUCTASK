@@ -42,6 +42,22 @@ import { Project, ProductPassport, AuditBlock, ComplianceCertificate, VisualThem
 import { Building, ChevronDown, Check, Plus, AlertTriangle, ShieldCheck, Search } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
+function createLoadingProject(option: { id: string; name: string; location: string }): Project {
+  return {
+    id: option.id,
+    name: option.name,
+    location: option.location,
+    status: "In Progress",
+    manager: "Site Manager",
+    complianceScore: 0,
+    coverageScore: 0,
+    auditIntegrityScore: 0,
+    passports: [],
+    certificates: [],
+    globalAuditLogsCount: 0,
+  };
+}
+
 export default function App() {
   const [activeTab, setActiveTab ] = useState<ActiveTab>("command");
   // Sub-tab requested from the expandable sidebar (e.g. "readiness", "registry").
@@ -193,6 +209,22 @@ export default function App() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isStageUpdating, setIsStageUpdating] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [metricsProjectId, setMetricsProjectId] = useState<string | null>(null);
+
+  const clearProjectMetrics = () => {
+    setDashboardData(null);
+    setExecutiveSummary(null);
+    setMaterialsData(null);
+    setPassports([]);
+    setCertificatesData(null);
+    setCertificates([]);
+    setApprovalsData([]);
+    setScansData(null);
+    setRisksList([]);
+    setIntelligenceData(null);
+    setAuditTrail([]);
+    setMetricsProjectId(null);
+  };
 
   // Redirection prefilled AI prompt state
   const [prefilledPrompt, setPrefilledPrompt] = useState<string | null>(null);
@@ -216,6 +248,7 @@ export default function App() {
       setIntelligenceData(bundle.intelligenceData);
       setProject(bundle.project);
       setAuditTrail(bundle.auditTrail);
+      setMetricsProjectId(String(projectId));
 
     } catch (err) {
       console.error("Unable to execute initial systems sync:", err);
@@ -271,6 +304,11 @@ export default function App() {
 
   useEffect(() => {
     if (selectedProjectId && projectsList.some((project) => project.id === selectedProjectId)) {
+      const selectedOption = projectsList.find((project) => project.id === selectedProjectId);
+      if (selectedOption) {
+        clearProjectMetrics();
+        setProject(createLoadingProject(selectedOption));
+      }
       fetchAllData(false, selectedProjectId);
     }
   }, [selectedProjectId, projectsList]);
@@ -546,6 +584,7 @@ export default function App() {
                 risksList={risksList}
                 onNavigateTo={handleNavigateTo}
                 selectedProjectId={selectedProjectId}
+                isLoadingMetrics={metricsProjectId !== selectedProjectId}
               />
             )
           )}

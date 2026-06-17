@@ -15,7 +15,7 @@ from intelligence import (
     delivery_status,
     plural,
 )
-from models import Approval, AuditTrail, Certificate, Delivery, Material, Project, User
+from models import Approval, AuditTrail, Certificate, Delivery, Material, ProductPassport, Project, QRScan, User
 
 # The demo account sees the shared seed data (projects with no owner). Everyone
 # else sees only the projects they own.
@@ -694,6 +694,129 @@ def get_project_actions(project_id: int, db: Session = Depends(get_db), current_
         date.today(),
         _scan_warning_actions(project_id, db),
     )
+
+
+@router.get("/{project_id}/bundle")
+def get_project_bundle(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Return the Command Center startup payload in one request.
+
+    This keeps Vercel -> Render startup from fanning out into many authenticated
+    round trips before the first dashboard can render.
+    """
+    project = _get_owned_project(project_id, db, current_user)
+    dashboard = get_dashboard(project_id, db, current_user)
+    readiness = get_project_readiness(project_id, db, current_user)
+    actions = get_project_actions(project_id, db, current_user)
+
+    materials = (
+        db.query(Material)
+        .filter(Material.project_id == project_id)
+        .order_by(Material.id)
+        .all()
+    )
+    certificates = (
+        db.query(Certificate)
+        .options(joinedload(Certificate.material))
+        .join(Material)
+        .filter(Material.project_id == project_id)
+        .order_by(Certificate.expiry_date)
+        .all()
+    )
+    approvals = (
+        db.query(Approval)
+        .options(joinedload(Approval.material), joinedload(Approval.user))
+        .filter(Approval.project_id == project_id)
+        .all()
+    )
+    approvals.sort(key=approval_overdue_days, reverse=True)
+    scans = (
+        db.query(QRScan)
+        .options(joinedload(QRScan.material), joinedload(QRScan.user))
+        .filter(QRScan.project_id == project_id)
+        .order_by(QRScan.scan_time.desc())
+        .all()
+    )
+    passports = (
+        db.query(ProductPassport)
+        .join(Material)
+        .filter(Material.project_id == project_id)
+        .all()
+    )
+    project_material_ids = [material.id for material in materials]
+    audit_trails = (
+        db.query(AuditTrail)
+        .options(joinedload(AuditTrail.user))
+        .filter(or_(AuditTrail.project_id == project_id, AuditTrail.material_id.in_(project_material_ids)))
+        .order_by(AuditTrail.timestamp.desc())
+        .limit(200)
+        .all()
+    )
+
+    return {
+        "project": _project_out(project, db, materials=materials, approvals=approvals, certificates=certificates),
+        "dashboard": dashboard,
+        "readiness": readiness,
+        "actions": actions,
+        "materials": materials,
+        "certificates": [
+            {
+                "id": cert.id,
+                "material_id": cert.material_id,
+                "certificate_name": cert.certificate_name,
+                "issuing_body": cert.issuing_body,
+                "issue_date": cert.issue_date,
+                "expiry_date": cert.expiry_date,
+                "status": certificate_status(cert),
+                "material_name": cert.material.name,
+                "days_until_expiry": days_until_expiry(cert),
+            }
+            for cert in certificates
+        ],
+        "approvals": [
+            {
+                "id": approval.id,
+                "project_id": approval.project_id,
+                "material_id": approval.material_id,
+                "approval_type": approval.approval_type,
+                "approver": approval.user.name if approval.user else str(approval.approver_id),
+                "status": approval.status,
+                "requested_date": approval.requested_date,
+                "approved_date": approval.approved_date,
+                "overdue_days": approval_overdue_days(approval),
+                "material_name": approval.material.name,
+            }
+            for approval in approvals
+        ],
+        "scans": [
+            {
+                "id": scan.id,
+                "material_id": scan.material_id,
+                "project_id": scan.project_id,
+                "scanned_by": scan.user.name if scan.user else str(scan.scanned_by),
+                "scan_time": scan.scan_time,
+                "location": scan.location,
+                "scan_type": scan.scan_type,
+                "result": scan.result,
+                "material_name": scan.material.name,
+            }
+            for scan in scans
+        ],
+        "passports": passports,
+        "audit_trail": [
+            {
+                "id": trail.id,
+                "action": trail.action,
+                "performed_by": trail.user.name if trail.user else str(trail.performed_by_id),
+                "timestamp": trail.timestamp.isoformat() if trail.timestamp else None,
+                "details": trail.details,
+                "hash": trail.hash,
+                "previous_hash": trail.previous_hash,
+                "material_id": trail.material_id,
+                "result": trail.result,
+            }
+            for trail in audit_trails
+        ],
+    }
 
 
 @router.get("/{project_id}/evidence", response_model=ProjectEvidenceOut)
