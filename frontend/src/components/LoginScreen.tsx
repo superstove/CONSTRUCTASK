@@ -1,30 +1,43 @@
 import React, { useState } from "react";
-import { ShieldCheck, Loader2, Info, X } from "lucide-react";
+import { AlertCircle, ShieldCheck, Loader2, Info, X } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
-export default function LoginScreen({ onDemoLogin }: { onDemoLogin: () => void }) {
+export default function LoginScreen({
+  onDemoLogin,
+  initialMessage,
+}: {
+  onDemoLogin: () => void;
+  initialMessage?: string | null;
+}) {
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialMessage || null);
   const [showGoogleNote, setShowGoogleNote] = useState(false);
 
   const handleGoogleSignIn = () => {
+    setError(null);
     if (!supabase) {
-      alert("Google sign-in is not configured. Please use the demo account instead.\n\n(To enable Google Sign-in, add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your Vercel Environment Variables)");
+      setError("Google sign-in is not configured yet. Use the demo account, or add VITE_SUPABASE_URL plus VITE_SUPABASE_PUBLISHABLE_KEY or VITE_SUPABASE_ANON_KEY in Vercel.");
       return;
     }
-    proceedWithGoogle();
+    setShowGoogleNote(true);
   };
 
   const proceedWithGoogle = async () => {
     setShowGoogleNote(false);
     setBusy(true);
     setError(null);
-    const { error: oauthError } = await supabase!.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    });
-    if (oauthError) {
-      setError(oauthError.message);
+    try {
+      const { error: oauthError } = await supabase!.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin },
+      });
+      if (oauthError) {
+        setError(oauthError.message || "Google sign-in could not start. Please try again or use the demo account.");
+        setBusy(false);
+      }
+    } catch (err) {
+      console.error("Google sign-in failed to start:", err);
+      setError("Google sign-in could not start. Please check the Supabase Google provider and redirect URL settings.");
       setBusy(false);
     }
     // On success the browser redirects to Google, then back here.
@@ -92,7 +105,10 @@ export default function LoginScreen({ onDemoLogin }: { onDemoLogin: () => void }
           )}
 
           {error && (
-            <p className="mt-4 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>
+            <div className="mt-4 flex items-start gap-2 text-xs text-red-200 bg-red-500/10 border border-red-500/25 rounded-lg px-3 py-2 leading-relaxed">
+              <AlertCircle className="w-4 h-4 text-red-300 shrink-0 mt-0.5" />
+              <p>{error}</p>
+            </div>
           )}
         </div>
 
@@ -119,12 +135,17 @@ export default function LoginScreen({ onDemoLogin }: { onDemoLogin: () => void }
               A Google account starts empty. All the sample materials, passports, risks and audit records
               live in the <span className="font-bold text-neutral-700">Demo Account</span>.
             </p>
+            <p className="text-xs text-neutral-500 mt-2 leading-relaxed">
+              Continue only if you want to authenticate with Google and create or use your own workspace.
+            </p>
             <div className="flex flex-col gap-2 mt-5">
               <button
                 onClick={proceedWithGoogle}
-                className="w-full bg-neutral-900 text-white rounded-xl px-4 py-2.5 text-sm font-bold hover:bg-neutral-800 transition-colors cursor-pointer"
+                disabled={busy}
+                className="w-full bg-neutral-900 text-white rounded-xl px-4 py-2.5 text-sm font-bold hover:bg-neutral-800 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
               >
-                Continue with Google
+                {busy && <Loader2 className="w-4 h-4 animate-spin" />}
+                {busy ? "Redirecting to Google" : "Continue with Google"}
               </button>
               <button
                 onClick={() => { setShowGoogleNote(false); onDemoLogin(); }}

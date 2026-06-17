@@ -76,6 +76,7 @@ export default function App() {
     if (supabase) {
       try { await supabase.auth.signOut(); } catch (err) { console.error("Sign-out failed:", err); }
     }
+    setAuthMessage(null);
     setAuthStatus("signedout");
   };
   const mainRef = useRef<HTMLElement>(null);
@@ -84,6 +85,7 @@ export default function App() {
 
   // Auth gate: Google (via Supabase) or the classic demo account.
   const [authStatus, setAuthStatus] = useState<"loading" | "signedout" | "ready">("loading");
+  const [authMessage, setAuthMessage] = useState<string | null>(null);
 
   // First-visit welcome guide (reopenable from the header "?" button).
   const [showWelcome, setShowWelcome] = useState(true);
@@ -94,8 +96,17 @@ export default function App() {
   useEffect(() => {
     const initAuth = async () => {
       if (getStoredAppToken() || localStorage.getItem("constructask_demo") === "1") {
+        setAuthMessage(null);
         setAuthStatus("ready");
         return;
+      }
+      const callbackParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const callbackError =
+        callbackParams.get("error_description") ||
+        callbackParams.get("error");
+      if (callbackError) {
+        setAuthMessage(`Google sign-in was not completed: ${callbackError}`);
+        window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
       }
       if (supabase) {
         // Handles the redirect back from Google sign-in.
@@ -103,10 +114,12 @@ export default function App() {
         if (session?.access_token) {
           try {
             await exchangeGoogleSession(session.access_token);
+            setAuthMessage(null);
             setAuthStatus("ready");
             return;
           } catch (err) {
             console.error("Google session exchange failed:", err);
+            setAuthMessage("Google sign-in reached the app, but the backend could not create your session. Please try again or use the demo account.");
           }
         }
       }
@@ -413,7 +426,9 @@ export default function App() {
   if (authStatus === "signedout") {
     return (
       <LoginScreen
+        initialMessage={authMessage}
         onDemoLogin={() => {
+          setAuthMessage(null);
           localStorage.setItem("constructask_demo", "1");
           setAuthStatus("ready");
         }}
