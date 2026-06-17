@@ -169,7 +169,7 @@ def get_executive_report(project_id: int, db: Session = Depends(get_db),
         })
 
     # --- Public base URL for QR codes ----------------------------------------
-    base = os.getenv("PUBLIC_VERIFY_BASE_URL") or os.getenv("PUBLIC_APP_URL") or "http://localhost:5173"
+    base = os.getenv("PUBLIC_VERIFY_BASE_URL") or os.getenv("PUBLIC_APP_URL") or "https://constructask.vercel.app"
 
     # --- Passport detail rows (pick the most decision-relevant first) -------
     def _passport_priority(m):

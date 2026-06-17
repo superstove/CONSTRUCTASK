@@ -212,7 +212,7 @@ def issue_signed_passport(payload: dict, db: Session = Depends(get_db), current_
 
 def _public_base_url() -> str:
     """Where the public verification page is served (the QR points here)."""
-    return os.getenv("PUBLIC_VERIFY_BASE_URL", "http://localhost:5173").rstrip("/")
+    return os.getenv("PUBLIC_VERIFY_BASE_URL", "https://constructask.vercel.app").rstrip("/")
 
 
 @router.get("/qr/{material_id}.png")
