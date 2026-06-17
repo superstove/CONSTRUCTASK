@@ -97,6 +97,7 @@ Just ask me anything in plain language! Try one of the prompts below to get star
   ]);
   const [inputText, setInputText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isPromptsExpanded, setIsPromptsExpanded] = useState(!compact);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const hasUserInteracted = useRef(false);
@@ -372,11 +373,19 @@ Just ask me anything in plain language! Try one of the prompts below to get star
 
           {/* Quick Triggers Suggesion Ribbon */}
           <div className="space-y-2.5 pt-4 border-t border-neutral-150">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-neutral-400 font-mono">
-            ERP Evidence Prompts
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-neutral-400 font-mono">
+                ERP Evidence Prompts
+              </p>
+              <button 
+                onClick={() => setIsPromptsExpanded(!isPromptsExpanded)}
+                className="text-[10px] font-bold text-neutral-500 hover:text-black uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                {isPromptsExpanded ? "Show Less" : "Show All"}
+              </button>
+            </div>
             <div className="flex flex-wrap gap-2">
-              {autoSuggestedPrompts.map((p, idx) => (
+              {(isPromptsExpanded ? autoSuggestedPrompts : autoSuggestedPrompts.slice(0, 3)).map((p, idx) => (
                 <button
                   key={idx}
                   id={`assistant-suggested-btn-${idx}`}
@@ -391,27 +400,55 @@ Just ask me anything in plain language! Try one of the prompts below to get star
           </div>
 
           {/* Input text controls */}
-          <form 
-            onSubmit={handleSubmit} 
-            className={compact ? "shrink-0 p-3 bg-white border-t border-neutral-100 flex items-center gap-2" : "mt-4 pt-4 border-t border-neutral-150 flex items-center gap-3 relative"}
-          >
-            <input
-              type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Ask Evidence AI..."
-              className={compact ? "flex-1 bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2 text-xs text-neutral-800 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-black" : "w-full bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-250 rounded-xl px-5 py-3.5 text-xs text-neutral-800 font-medium placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"}
-              disabled={isGenerating}
-            />
-            <button
-              type="submit"
-              disabled={!inputText.trim() || isGenerating}
-              className={compact ? "bg-black hover:bg-neutral-800 text-white rounded-lg px-3 py-2 flex items-center justify-center disabled:opacity-40 transition-colors" : "bg-black hover:bg-neutral-850 text-white font-bold rounded-xl text-[10.5px] px-5 py-3 flex items-center gap-1.5 shadow transition-all disabled:opacity-40 uppercase font-mono tracking-wider cursor-pointer"}
+          <div className="relative mt-4">
+            {inputText.trim().length > 1 && (
+              <div className="absolute bottom-full left-0 w-full mb-2 bg-white border border-neutral-200 shadow-xl rounded-xl overflow-hidden z-50">
+                <div className="px-3 py-2 bg-neutral-50 border-b border-neutral-100 text-[10px] font-mono font-bold text-neutral-500 uppercase tracking-widest">
+                  Suggested Questions
+                </div>
+                <div className="max-h-48 overflow-y-auto">
+                  {autoSuggestedPrompts.filter(p => p.text.toLowerCase().includes(inputText.toLowerCase()) || p.label.toLowerCase().includes(inputText.toLowerCase())).length > 0 ? (
+                    autoSuggestedPrompts.filter(p => p.text.toLowerCase().includes(inputText.toLowerCase()) || p.label.toLowerCase().includes(inputText.toLowerCase())).map((p, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          setInputText(p.text);
+                          handleSubmit(undefined, p.text);
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-neutral-50 border-b last:border-b-0 border-neutral-100 text-xs text-neutral-700 hover:text-black font-medium transition-colors flex items-center justify-between cursor-pointer"
+                      >
+                        <span>{p.text}</span>
+                        <ChevronRight className="w-3 h-3 text-neutral-400 shrink-0" />
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-xs text-neutral-500">No suggestions found. Press Enter to ask anyway.</div>
+                  )}
+                </div>
+              </div>
+            )}
+            <form 
+              onSubmit={handleSubmit} 
+              className={compact ? "shrink-0 p-3 bg-white border-t border-neutral-100 flex items-center gap-2" : "pt-4 border-t border-neutral-150 flex items-center gap-3 relative"}
             >
-              {!compact && <span>Evaluate</span>}
-              <Send className={compact ? "w-4 h-4" : "w-3.5 h-3.5"} />
-            </button>
-          </form>
+              <input
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Ask Evidence AI..."
+                className={compact ? "flex-1 bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2 text-xs text-neutral-800 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-black" : "w-full bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-250 rounded-xl px-5 py-3.5 text-xs text-neutral-800 font-medium placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"}
+                disabled={isGenerating}
+              />
+              <button
+                type="submit"
+                disabled={!inputText.trim() || isGenerating}
+                className={compact ? "bg-black hover:bg-neutral-800 text-white rounded-lg px-3 py-2 flex items-center justify-center disabled:opacity-40 transition-colors cursor-pointer" : "bg-black hover:bg-neutral-850 text-white font-bold rounded-xl text-[10.5px] px-5 py-3 flex items-center gap-1.5 shadow transition-all disabled:opacity-40 uppercase font-mono tracking-wider cursor-pointer"}
+              >
+                {!compact && <span>Evaluate</span>}
+                <Send className={compact ? "w-4 h-4" : "w-3.5 h-3.5"} />
+              </button>
+            </form>
+          </div>
 
         </div>
 
