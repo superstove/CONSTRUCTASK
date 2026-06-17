@@ -67,13 +67,18 @@ export default function CommandCenter({
     }, 4500);
   };
 
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
   const handleDownloadPDF = async () => {
     // Enterprise PDF — generated server-side (ReportLab), using the app's auth flow.
+    setIsGeneratingPdf(true);
     try {
       await downloadProjectReportPdf(selectedProjectId);
       triggerToast("Enterprise Intelligence Report generated and downloaded successfully!");
     } catch (err: any) {
       alert(`Could not generate the report PDF.\n\n${err?.message || err}\n\nIf this says 401/404, restart the backend (uvicorn main:app --reload).`);
+    } finally {
+      setIsGeneratingPdf(false);
     }
   };
 
