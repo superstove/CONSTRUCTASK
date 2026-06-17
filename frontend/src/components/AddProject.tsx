@@ -16,7 +16,7 @@ interface AddProjectProps {
 export default function AddProject({ onAddProject }: AddProjectProps) {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
-  const [manager, setManager] = useState("Anand AK");
+  const [manager, setManager] = useState("Site Manager");
   const [targetScore, setTargetScore] = useState(85);
   const [selectedStandards, setSelectedStandards] = useState<string[]>(["ISO-9001", "EN-10223"]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,7 +55,7 @@ export default function AddProject({ onAddProject }: AddProjectProps) {
       // Reset form
       setName("");
       setLocation("");
-      setManager("Anand AK");
+      setManager("Site Manager");
       setTargetScore(85);
       
       setTimeout(() => setShowSuccess(false), 4000);

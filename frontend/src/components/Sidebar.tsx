@@ -102,7 +102,7 @@ export default function Sidebar({
   // New Project Form state inside sidebar modal
   const [newProjName, setNewProjName] = React.useState("");
   const [newProjLocation, setNewProjLocation] = React.useState("");
-  const [newProjManager, setNewProjManager] = React.useState("Anand AK");
+  const [newProjManager, setNewProjManager] = React.useState("Site Manager");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   // User Switcher and Creation States
@@ -111,6 +111,8 @@ export default function Sidebar({
   const [newUserName, setNewUserName] = React.useState("");
   const [newUserEmail, setNewUserEmail] = React.useState("");
   const [newUserRole, setNewUserRole] = React.useState("Evidence Operator");
+  const displayUserName = activeUser?.name || (usersList.length ? "Select operator" : "Syncing team...");
+  const displayUserRole = activeUser?.role || (usersList.length ? "Choose identity" : "Loading identity");
 
   const navSections: Array<{title: string, items: Array<{id: ActiveTab, name: string, icon: any, description: string, subItems?: Array<{sub: string, name: string}>}>}> = [
     {
@@ -482,10 +484,10 @@ export default function Sidebar({
               </div>
               <div className="overflow-hidden leading-tight flex-1">
                 <p className="text-[10px] font-bold premium-text-primary truncate">
-                  {activeUser ? activeUser.name : "Anand AK"}
+                  {displayUserName}
                 </p>
                 <p className="text-[9px] premium-text-secondary font-mono flex items-center gap-1 truncate">
-                  <span>{activeUser ? activeUser.role : "Evidence operator"}</span>
+                  <span>{displayUserRole}</span>
                   <ChevronDown className="w-2.5 h-2.5 text-neutral-400 shrink-0" />
                 </p>
               </div>
@@ -545,7 +547,7 @@ export default function Sidebar({
                     // Reset Form
                     setNewProjName("");
                     setNewProjLocation("");
-                    setNewProjManager("Anand AK");
+                    setNewProjManager("Site Manager");
                     setShowAddModal(false);
                   }
                 }
@@ -604,7 +606,7 @@ export default function Sidebar({
                   <input
                     type="text"
                     required
-                    placeholder="Anand AK"
+                    placeholder="Site Manager"
                     value={newProjManager}
                     onChange={(e) => setNewProjManager(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 focus:bg-white rounded-xl text-xs text-neutral-800 font-medium outline-none focus:ring-1 focus:ring-black"

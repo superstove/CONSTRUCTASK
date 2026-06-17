@@ -75,7 +75,7 @@ export default function ProductPassports({
   // QR Verification local states
   const [qrSelectedId, setQrSelectedId] = useState("");
   const [qrPayload, setQrPayload] = useState("");
-  const [scannedBy, setScannedBy] = useState("Anand AK");
+  const [scannedBy, setScannedBy] = useState("Site Inspector");
   const [siteLocation, setSiteLocation] = useState("Sector-3 Slope Face, IN");
   
   const [checklist, setChecklist] = useState({
@@ -701,7 +701,7 @@ export default function ProductPassports({
                               <input 
                                 type="text" 
                                 required
-                                placeholder="e.g. Anand AK" 
+                                placeholder="e.g. Site Inspector" 
                                 value={eventOperator}
                                 onChange={(e) => setEventOperator(e.target.value)}
                                 className="w-full bg-white border border-[#cccccc] p-2 rounded text-xs focus:ring-1 focus:ring-black focus:outline-none"

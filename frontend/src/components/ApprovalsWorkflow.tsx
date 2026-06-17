@@ -25,7 +25,7 @@ interface ApprovalsWorkflowProps {
 export default function ApprovalsWorkflow({ onRefresh, onGateApproved, gates, setGates }: ApprovalsWorkflowProps) {
   const [selectedGate, setSelectedGate] = useState<ApprovalGate | null>(null);
   const [signOffComments, setSignOffComments] = useState("");
-  const [signOffOperator, setSignOffOperator] = useState("Anand AK");
+  const [signOffOperator, setSignOffOperator] = useState("Authorized Inspector");
   const [isSigning, setIsSigning] = useState(false);
 
   const handleSignOffSubmit = (e: React.FormEvent) => {

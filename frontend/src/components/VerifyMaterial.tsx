@@ -46,7 +46,7 @@ export default function VerifyMaterial({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPassportId, setSelectedPassportId] = useState("");
   const [qrPayload, setQrPayload] = useState("");
-  const [scannedBy, setScannedBy] = useState("Anand AK");
+  const [scannedBy, setScannedBy] = useState("Site Inspector");
   const [siteLocation, setSiteLocation] = useState("Sector-3 Slope Face, IN");
   
   // Checklist states
