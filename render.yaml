@@ -14,7 +14,7 @@ services:
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS
-        value: https://constructask.vercel.app,https://constructask-superstove.vercel.app
+        value: https://constructask.vercel.app,https://constructask-superstove.vercel.app,http://localhost,https://localhost,capacitor://localhost
       - key: DPP_ISSUER_ID
         value: anton-steel-works
       - key: DPP_ISSUER_NAME
