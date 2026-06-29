@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
   <img src="https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white" />
   <img src="https://img.shields.io/badge/Vite-Bundler-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
-  <img src="https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-336791?style=for-the-badge&logo=postgresql&logoColor=white" />
 </div>
 
 <br/>
@@ -28,14 +28,12 @@ Construct Ask is an enterprise-grade compliance and supply-chain intelligence pl
 
 ---
 
----
-
 ## ✨ Key Features
 
 *   **🔒 Cryptographically Verifiable DPPs**: Every material gets a Digital Product Passport signed with Ed25519 keys. Physical QR codes link directly to these immutable records.
 *   **🔗 Hash-Chained Audit Trails**: All state changes (manufacturing, certification, delivery, installation, auditing) are cryptographically chained. If one record is altered, the entire chain invalidates—ensuring total data integrity.
+*   **🤖 AI-Powered TDS Converter**: Instantly extract structured technical specifications from messy supplier PDFs (Technical Data Sheets) using Gemini/OpenAI, transforming unstructured text into searchable compliance data.
 *   **📱 Field-Ready QR Scanning**: Site engineers can instantly verify materials on-site using the built-in scanner, checking compliance, expiration dates, and installation readiness.
-*   **🤖 AI Evidence Assistant**: Integrated with Gemini/OpenAI to answer complex compliance queries, summarize supplier health, and predict project risks based on real-time data.
 *   **📊 Project Intelligence Dashboard**: High-level views of supplier reliability, delayed deliveries, expiring certificates, and critical path blockers.
 *   **📑 Automated Enterprise Reporting**: Generate comprehensive, styled PDF reports of compliance matrices and audit logs using ReportLab.
 
@@ -48,9 +46,9 @@ Construct Ask is an enterprise-grade compliance and supply-chain intelligence pl
 | **Core Framework** | FastAPI, Python 3.11 | High-performance async REST API. |
 | **Frontend** | React 19, TypeScript, Vite | Lightning-fast SPA with modern UI/UX. |
 | **Styling & UI** | Tailwind CSS v4, Framer Motion | Premium micro-animations and responsive design. |
-| **Database** | SQLite / PostgreSQL | State persistence and relational data mapping. |
+| **Database** | PostgreSQL (Supabase) | State persistence and relational data mapping. |
 | **Cryptography** | Ed25519, SHA-256 | DPP signatures and immutable hash-chained audit ledgers. |
-| **Generative AI** | Google Gemini / OpenAI | Evidence compliance parsing and risk analysis. |
+| **Generative AI** | Google Gemini / OpenAI | TDS extraction, compliance parsing and risk analysis. |
 | **Reporting** | ReportLab | Enterprise PDF compliance matrix generation. |
 
 ---
@@ -70,13 +68,13 @@ flowchart TB
         API["⚙️ REST API Endpoints"]
         Crypto["🔐 Ed25519 Signature Engine"]
         Ledger["⛓️ Hash-Chained Audit Ledger"]
-        PDF["📑 PDF Report Generator"]
+        PDF["📑 PDF Report & AI Parsing"]
     end
 
     subgraph Data [Data and Intelligence Tier]
         direction LR
-        DB[("🗄️ Relational DB SQLAlchemy")]
-        AI["🧠 AI Engine LLM"]
+        DB[("🗄️ PostgreSQL Supabase")]
+        AI["🧠 AI Engine Gemini"]
     end
 
     %% Client Interactions
@@ -86,11 +84,11 @@ flowchart TB
     %% Internal API Routing
     API <-->|"Sign and Verify DPP"| Crypto
     API <-->|"Validate State Integrity"| Ledger
-    API -->|"Export Compliance"| PDF
+    API -->|"Extract TDS / Export Compliance"| PDF
 
     %% Data Connections
     API <-->|"Read and Write Records"| DB
-    API <-->|"Analyze Supplier Risk"| AI
+    API <-->|"Analyze Supplier Risk & TDS"| AI
 
     %% Styling
     style Client fill:transparent,stroke:#3b82f6,stroke-width:2px,stroke-dasharray: 5 5
@@ -104,7 +102,7 @@ flowchart TB
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/superstove/CONSTRUCTASK.git
+git clone https://github.com/superstove/constructask.git
 cd constructask
 ```
 
@@ -121,7 +119,7 @@ pip install -r requirements.txt
 
 # Set up environment variables
 cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY if you want AI features
+# Edit .env and add your GEMINI_API_KEY and Supabase PostgreSQL credentials
 
 # Start the FastAPI server
 uvicorn main:app --reload
