@@ -11,6 +11,7 @@ from database import Base, engine, ensure_demo_schema
 from routers import approvals, audit, chat, compliance, materials, passports, projects, reports, users
 from routers import auth as auth_router
 from routers import dpp_verify
+from routers import tds_extract
 from middleware.logging_middleware import APILoggingMiddleware
 
 # --- Logging setup ---
@@ -56,6 +57,7 @@ app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(passports.router, prefix="/api/passports", tags=["passports"])
 app.include_router(audit.router, prefix="/api/audit", tags=["audit"])
 app.include_router(dpp_verify.router, prefix="/api/dpp", tags=["verifiable-dpp"])
+app.include_router(tds_extract.router, prefix="/api/tds", tags=["tds-converter"])
 
 
 @app.get("/")

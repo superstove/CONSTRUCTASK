@@ -284,3 +284,16 @@ class AssistantContextOut(BaseModel):
     certificates: list[CertificateOut]
     deliveries: list[DeliveryOut]
     users: list[UserOut]
+
+
+# --- DPP Verification Request Models ---
+
+class DPPVerifyMaterialRequest(BaseModel):
+    material_id: int
+
+class DPPIssueRequest(BaseModel):
+    material_id: int
+
+class DPPVerifyCredentialRequest(BaseModel):
+    credential: dict
+    proof: dict

@@ -16,6 +16,7 @@ const ComplianceHub = React.lazy(() => import("./components/ComplianceHub"));
 const AuditTrail = React.lazy(() => import("./components/AuditTrail"));
 const ScanLog = React.lazy(() => import("./components/ScanLog"));
 const ProjectIntelligence = React.lazy(() => import("./components/ProjectIntelligence"));
+const TDSConverter = React.lazy(() => import("./components/TDSConverter"));
 const AboutPage = React.lazy(() => import("./components/AboutPage"));
 const SettingsPage = React.lazy(() => import("./components/SettingsPage"));
 import GlobalSearchModal from "./components/GlobalSearchModal";
@@ -61,7 +62,7 @@ function createLoadingProject(option: { id: string; name: string; location: stri
 
 export default function App() {
   // Support ?tab= deep-linking from PDF QR codes (e.g. ?tab=passports)
-  const validTabs: ActiveTab[] = ["command", "project-intelligence", "passports", "lifecycle", "compliance", "audit", "assistant", "scan", "about", "settings"];
+  const validTabs: ActiveTab[] = ["command", "project-intelligence", "passports", "lifecycle", "compliance", "audit", "assistant", "scan", "tds-converter", "about", "settings"];
   const urlTab = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("tab") : null;
   const initialTab: ActiveTab = urlTab && validTabs.includes(urlTab as ActiveTab) ? (urlTab as ActiveTab) : "command";
   const [activeTab, setActiveTab ] = useState<ActiveTab>(initialTab);
@@ -509,7 +510,7 @@ export default function App() {
             
             <div className="hidden lg:flex items-center">
               <span className="text-sm font-bold font-sans text-neutral-800">
-                {activeTab === "command" ? "Command Center" : activeTab === "project-intelligence" ? "Project Intelligence" : activeTab === "passports" ? "Product Passports" : activeTab === "lifecycle" ? "Lifecycle Intelligence" : activeTab === "compliance" ? "Compliance Hub" : activeTab === "audit" ? "Audit Trail" : activeTab === "scan" ? "Scan Log" : activeTab === "settings" ? "Settings" : activeTab === "about" ? "About" : "Evidence Assistant"}
+                {activeTab === "command" ? "Command Center" : activeTab === "project-intelligence" ? "Project Intelligence" : activeTab === "passports" ? "Product Passports" : activeTab === "lifecycle" ? "Lifecycle Intelligence" : activeTab === "compliance" ? "Compliance Hub" : activeTab === "audit" ? "Audit Trail" : activeTab === "scan" ? "Scan Log" : activeTab === "tds-converter" ? "TDS Converter" : activeTab === "settings" ? "Settings" : activeTab === "about" ? "About" : "Evidence Assistant"}
               </span>
             </div>
             
@@ -666,6 +667,10 @@ export default function App() {
 
           {activeTab === "scan" && (
             <ScanLog scanLogs={scansData?.logs || []} onRefresh={handleRefresh} selectedProjectId={selectedProjectId} />
+          )}
+
+          {activeTab === "tds-converter" && (
+            <TDSConverter />
           )}
 
           {activeTab === "about" && (

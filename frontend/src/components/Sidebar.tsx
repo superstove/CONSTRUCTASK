@@ -29,15 +29,16 @@ import { VisualTheme } from "../types";
 import { supabase } from "../lib/supabaseClient";
 import { motion, AnimatePresence } from "framer-motion";
 
-export type ActiveTab = 
-  | "command" 
+export type ActiveTab =
+  | "command"
   | "project-intelligence"
-  | "passports" 
-  | "lifecycle" 
-  | "compliance" 
-  | "audit" 
+  | "passports"
+  | "lifecycle"
+  | "compliance"
+  | "audit"
   | "assistant"
   | "scan"
+  | "tds-converter"
   | "about"
   | "settings";
 
@@ -143,6 +144,7 @@ export default function Sidebar({
          { id: "compliance", name: "Compliance Hub", icon: FileCheck, description: "Quality cert audits" },
          { id: "audit", name: "Audit Trail", icon: Network, description: "Verifiable hash links" },
          { id: "scan", name: "Scan Log", icon: ShieldCheck, description: "Verify materials" },
+         { id: "tds-converter", name: "TDS Converter", icon: PackagePlus, description: "TDS to DPP JSON" },
       ]
     },
     {

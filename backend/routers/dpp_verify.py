@@ -40,6 +40,7 @@ from database import get_db
 from dpp_crypto import sign_passport, verify_passport
 from dpp_keystore import get_issuer, key_fingerprint
 from models import Certificate, Material, ProductPassport, TrustedIssuer, User
+from schemas import DPPVerifyMaterialRequest, DPPIssueRequest, DPPVerifyCredentialRequest
 
 router = APIRouter()
 
@@ -96,12 +97,10 @@ def _load_meta(passport: ProductPassport) -> dict:
 # --- Endpoints ----------------------------------------------------------------
 
 @router.post("/verify-material")
-def verify_material_passport(payload: dict, db: Session = Depends(get_db)):
+def verify_material_passport(payload: DPPVerifyMaterialRequest, db: Session = Depends(get_db)):
     """PUBLIC. Verify one material's passport signature against its current data.
     Issues + stores a signature on first call so the demo always has something to verify."""
-    material_id = payload.get("material_id")
-    if not material_id:
-        raise HTTPException(status_code=400, detail="material_id is required")
+    material_id = payload.material_id
 
     material = db.query(Material).filter(Material.id == int(material_id)).first()
     if not material:
@@ -168,12 +167,10 @@ def verify_material_passport(payload: dict, db: Session = Depends(get_db)):
 
 
 @router.post("/verify")
-def verify_signed_passport(vc: dict, db: Session = Depends(get_db)):
+def verify_signed_passport(vc: DPPVerifyCredentialRequest, db: Session = Depends(get_db)):
     """PUBLIC — verify a full passport credential {credential, proof}. No login."""
-    credential = vc.get("credential")
-    proof = vc.get("proof")
-    if not credential or not proof:
-        raise HTTPException(status_code=400, detail="Body must include 'credential' and 'proof'")
+    credential = vc.credential
+    proof = vc.proof
     public_hex = proof.get("issuer_public_key", "")
     signature = proof.get("signature", "")
     issuer_id = credential.get("issuer_id", "")
@@ -184,11 +181,9 @@ def verify_signed_passport(vc: dict, db: Session = Depends(get_db)):
 
 
 @router.post("/issue")
-def issue_signed_passport(payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def issue_signed_passport(payload: DPPIssueRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Re-issue + store a signed passport for a material (overwrites the stored signature)."""
-    material_id = payload.get("material_id")
-    if not material_id:
-        raise HTTPException(status_code=400, detail="material_id is required")
+    material_id = payload.material_id
     material = db.query(Material).filter(Material.id == int(material_id)).first()
     if not material:
         raise HTTPException(status_code=404, detail="Material not found")

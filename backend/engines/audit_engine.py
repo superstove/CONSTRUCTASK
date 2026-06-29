@@ -20,6 +20,24 @@ from utils import sha256_hash
 
 
 @dataclass
+class BrokenLink:
+    record_id: int
+    expected_previous_hash: str | None
+    actual_previous_hash: str | None
+    action: str
+    timestamp: datetime
+
+
+@dataclass
+class ChainVerification:
+    is_valid: bool
+    total_records: int
+    verified_records: int
+    broken_links: list[BrokenLink]
+    summary: str
+
+
+@dataclass
 class AuditRecord:
     """Result of creating an audit record."""
     id: int
@@ -209,23 +227,3 @@ def track_project_created(db: Session, project_id: int, user_id: int | None, pro
 
 def track_ai_query(db: Session, project_id: int, user_id: int | None, query_id: int, question: str) -> AuditRecord:
     return create_audit_record(db, project_id=project_id, user_id=user_id, entity_type="ai_query", entity_id=query_id, action="ai_query_executed", details=f"AI query: {question[:100]}")
-
-
-# --- Dataclasses for verification ---
-
-@dataclass
-class BrokenLink:
-    record_id: int
-    expected_previous_hash: str | None
-    actual_previous_hash: str | None
-    action: str
-    timestamp: datetime
-
-
-@dataclass
-class ChainVerification:
-    is_valid: bool
-    total_records: int
-    verified_records: int
-    broken_links: list[BrokenLink]
-    summary: str

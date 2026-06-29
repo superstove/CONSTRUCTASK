@@ -149,7 +149,7 @@ type FastApiProjectBundle = {
   audit_trail: any[];
 };
 
-const API_BASE_URL =
+export const API_BASE_URL =
   ((import.meta as any).env?.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ||
   "http://127.0.0.1:8000";
 
@@ -197,7 +197,7 @@ export async function exchangeGoogleSession(supabaseAccessToken: string) {
   return data as { access_token: string; user_id: number; name: string; role: string };
 }
 
-async function getAuthToken(): Promise<string> {
+export async function getAuthToken(): Promise<string> {
   if (cachedToken) return cachedToken;
   const stored = getStoredAppToken();
   if (stored) {
