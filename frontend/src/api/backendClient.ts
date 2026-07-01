@@ -179,6 +179,26 @@ export function clearAppSession(): void {
   tokenRequest = null;
 }
 
+export async function verifyStoredAppSession(): Promise<boolean> {
+  const token = getStoredAppToken();
+  if (!token) return false;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (response.ok) {
+      cachedToken = token;
+      return true;
+    }
+  } catch (err) {
+    console.error("Stored session validation failed", err);
+  }
+
+  clearAppSession();
+  return false;
+}
+
 /** Exchange a Supabase (Google) session token for this app's own JWT. */
 export async function exchangeGoogleSession(supabaseAccessToken: string) {
   const response = await fetch(`${API_BASE_URL}/api/auth/google-sync`, {
@@ -205,8 +225,8 @@ export async function getAuthToken(): Promise<string> {
     return stored;
   }
   if (tokenRequest) return tokenRequest;
-  // Demo auto-login is ON by default; set VITE_ENABLE_DEMO=false to require real sign-in (production).
-  if ((import.meta as any).env?.VITE_ENABLE_DEMO === "false") return "";
+  // Demo auto-login is available only after the user explicitly chooses the demo account.
+  if (localStorage.getItem("constructask_demo") !== "1") return "";
 
   tokenRequest = (async () => {
     try {

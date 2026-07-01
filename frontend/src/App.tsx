@@ -38,6 +38,7 @@ import {
   exchangeGoogleSession,
   getStoredAppToken,
   clearAppSession,
+  verifyStoredAppSession,
 } from "./api/backendClient";
 
 import { Project, ProductPassport, AuditBlock, ComplianceCertificate, VisualTheme, DashboardMetrics } from "./types";
@@ -100,11 +101,19 @@ export default function App() {
 
   useEffect(() => {
     const initAuth = async () => {
-      if (getStoredAppToken() || localStorage.getItem("constructask_demo") === "1") {
-        setAuthMessage(null);
-        setAuthStatus("ready");
-        return;
+      if (getStoredAppToken()) {
+        const isValidSession = await verifyStoredAppSession();
+        if (isValidSession) {
+          setAuthMessage(null);
+          setAuthStatus("ready");
+          return;
+        }
       }
+
+      if (localStorage.getItem("constructask_demo") === "1") {
+        localStorage.removeItem("constructask_demo");
+      }
+
       const callbackParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
       const callbackError =
         callbackParams.get("error_description") ||

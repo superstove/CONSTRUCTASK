@@ -86,23 +86,19 @@ export default function LoginScreen({
             Sign in with Google
           </button>
 
-          {(import.meta as any).env?.VITE_ENABLE_DEMO !== "false" && (
-            <>
-              <div className="flex items-center gap-3 my-5">
-                <div className="flex-1 h-px bg-[#1A2433]"></div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 font-bold">or</span>
-                <div className="flex-1 h-px bg-[#1A2433]"></div>
-              </div>
+          <div className="flex items-center gap-3 my-5">
+            <div className="flex-1 h-px bg-[#1A2433]"></div>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 font-bold">or</span>
+            <div className="flex-1 h-px bg-[#1A2433]"></div>
+          </div>
 
-              <button
-                onClick={onDemoLogin}
-                className="w-full flex items-center justify-center gap-2 bg-white/10 border border-white/10 text-white rounded-xl px-4 py-3 text-sm font-bold hover:bg-white/20 transition-all cursor-pointer shadow-md"
-              >
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                Continue with Demo Account
-              </button>
-            </>
-          )}
+          <button
+            onClick={onDemoLogin}
+            className="w-full flex items-center justify-center gap-2 bg-white/10 border border-white/10 text-white rounded-xl px-4 py-3 text-sm font-bold hover:bg-white/20 transition-all cursor-pointer shadow-md"
+          >
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            Continue with Demo Account
+          </button>
 
           {error && (
             <div className="mt-4 flex items-start gap-2 text-xs text-red-200 bg-red-500/10 border border-red-500/25 rounded-lg px-3 py-2 leading-relaxed">

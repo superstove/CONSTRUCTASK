@@ -10,6 +10,7 @@ import {
   mapMaterialToPassport,
   mapProjectOption,
   mapScanLog,
+  verifyStoredAppSession,
 } from "./backendClient";
 
 test("maps FastAPI project records to selector options", () => {
@@ -87,6 +88,7 @@ test("shares one demo login across concurrent API requests", async () => {
 
   try {
     clearAppSession();
+    store.set("constructask_demo", "1");
 
     await Promise.all([
       listProjects(),
@@ -207,6 +209,48 @@ test("loads project startup data from the backend bundle endpoint", async () => 
       requestedUrls.some((url) => url.includes("/api/projects/24/dashboard")),
       false
     );
+  } finally {
+    clearAppSession();
+    globalThis.fetch = originalFetch;
+    Object.defineProperty(globalThis, "localStorage", {
+      configurable: true,
+      value: originalLocalStorage,
+    });
+  }
+});
+
+test("clears stale stored tokens so deployed app returns to login", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalLocalStorage = globalThis.localStorage;
+  const store = new Map<string, string>([
+    ["constructask_app_token", "expired-token"],
+    ["constructask_app_user", JSON.stringify({ user_id: 1, name: "Old User", role: "Viewer" })],
+  ]);
+
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => store.set(key, value),
+      removeItem: (key: string) => store.delete(key),
+    },
+  });
+
+  globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+    const href = String(url);
+    if (href.endsWith("/api/auth/me")) {
+      assert.equal((init?.headers as Record<string, string>)?.Authorization, "Bearer expired-token");
+      return new Response("expired", { status: 401 });
+    }
+    return new Response("not found", { status: 404 });
+  }) as typeof fetch;
+
+  try {
+    const valid = await verifyStoredAppSession();
+
+    assert.equal(valid, false);
+    assert.equal(store.has("constructask_app_token"), false);
+    assert.equal(store.has("constructask_app_user"), false);
   } finally {
     clearAppSession();
     globalThis.fetch = originalFetch;
