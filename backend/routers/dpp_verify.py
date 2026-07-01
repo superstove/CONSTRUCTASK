@@ -137,6 +137,19 @@ def verify_material_passport(payload: DPPVerifyMaterialRequest, db: Session = De
     stored_pub = meta["dpp_public_key"]
     issuer_id = meta["dpp_issuer_id"]
 
+    # If the signing key rotated (e.g. key file was regenerated), the old
+    # signature is useless. Re-sign with the current key so the passport
+    # stays verifiable instead of permanently stuck at UNTRUSTED_ISSUER.
+    if stored_pub != issuer["public_hex"] and issuer_id == issuer["issuer_id"]:
+        meta["dpp_signature"] = sign_passport(identity, issuer["private_hex"])
+        meta["dpp_public_key"] = issuer["public_hex"]
+        meta["dpp_issued_at"] = datetime.utcnow().isoformat()
+        passport.metadata_json = json.dumps(meta)
+        db.commit()
+        stored_sig = meta["dpp_signature"]
+        stored_pub = meta["dpp_public_key"]
+        freshly_issued = True
+
     signature_ok = verify_passport(identity, stored_sig, stored_pub)
     trusted, issuer_name = _is_trusted(db, issuer_id, stored_pub)
 
